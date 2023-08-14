@@ -1,13 +1,16 @@
 import { ThemeProvider } from './ThemeProvider';
-import { Loader } from '@mantine/core';
+import { SimpleGrid } from '@mantine/core';
+import { Center, Loader } from '@mantine/core';
 import { Text } from '@mantine/core';
 //import { Welcome } from './Welcome/Welcome';
-
 import * as React from 'react';
 import axios from 'axios';
-//import { CarouselCard } from './Caroussel';
+import { HeaderSimple } from './Header'
 import { Grid } from '@mantine/core';
-import { Table } from '@mantine/core';
+import { HeroImageRight } from './Banner';
+import { Carousel } from '@mantine/carousel';
+import { createStyles, Image, Button, Card, Group, getStylesRef, rem } from '@mantine/core';
+import { IconStar } from '@tabler/icons-react';
 
 
 type StoriesState = {
@@ -140,7 +143,7 @@ const App = () => {
   //console.log(stories.data);
   const filteredStories = stories.data.filter(function (story){   
    if (story.release !== undefined){
-    console.log(story);
+    //Sconsole.log(story);
     return story.release.title.toLowerCase().includes(searchTerm.toLowerCase());
    }
    else{
@@ -183,22 +186,30 @@ const App = () => {
     });
   };
 
+  const options = [
+    { link: 'Login', label: 'Log In' },
+     { link: 'Register', label: 'Register' }
+   ]
+
   return (
     <>
     <ThemeProvider>
-      <Grid columns={12}>
-        <Grid.Col span="content">    
-          <div>
-            <h1>My Hacker Stories</h1>
+    <HeaderSimple links={options}></HeaderSimple>
+    <HeroImageRight></HeroImageRight>
+      <Grid >
+      <Center maw={400} h={100} mx="auto">
+        <SearchForm 
+                searchTerm={searchTerm}
+                onSearchInput={handleSearchInput}
+                onSearchSubmit={handleSearchSubmit}
+                >
+        </SearchForm>
+      </Center>
+        <Grid.Col span={2}>    
 
-            <SearchForm 
-              searchTerm={searchTerm}
-              onSearchInput={handleSearchInput}
-              onSearchSubmit={handleSearchSubmit}
-              >
-            </SearchForm>
-
-          <hr />
+        </Grid.Col>
+        <Grid.Col span={10}>
+        <div>
 
           {stories.isError && <p>Something went wrong... </p>}
 
@@ -220,8 +231,6 @@ const App = () => {
             <List list={filteredStories} onRemoveItem={handleRemoveStory} />
           )}
           </div>
-        </Grid.Col>
-        <Grid.Col span="content">
         </Grid.Col>
       </Grid>
     </ThemeProvider>
@@ -393,6 +402,12 @@ type ItemProps = {
   children: React.ReactNode;
 }
 
+type CarouselProps = {
+  item: Listing;
+  index: number;
+  children: React.ReactNode;
+}
+
 type SearchFormProps = {
   searchTerm: string;
   onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -421,30 +436,19 @@ const SearchForm: React.FC<SearchFormProps> = ({
 );
 
 const List: React.FC<ListProps> = ({ list, onRemoveItem }) => {
-  const ths = (
-    <tr>
-      <th>Title</th>
-      <th>Author</th>
-      <th>Numbre of Comments</th>
-      <th>Points</th>
-      <th>Toggle</th>
-    </tr>
-  );
 
 return (
-  <Table striped highlightOnHover withBorder withColumnBorders>
-    <caption>Hacker news</caption>
-    <thead>{ths}</thead>
-    <tbody>
+  <SimpleGrid cols={5}>
     {list.map((item, index) => (
         <>
-          <Item key={item.id} index={index} item={item}>
-            <Button name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></Button>
-          </Item>
+          <div> 
+            <Item key={item.release.id} index={index} item={item}>
+              <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
+            </Item>
+          </div>
         </>
     ))}
-    </tbody>
-  </Table>
+  </SimpleGrid>
 );};
 
 enum ButtonTypes {
@@ -454,7 +458,7 @@ enum ButtonTypes {
   undefined
 } 
 
-type ButtonProps = {
+type DeleteButtonProps = {
   name: string;
   type?: string;
   value: string;
@@ -463,7 +467,7 @@ type ButtonProps = {
   item: Listing;
 }
 
-const Button: React.FC<ButtonProps> = ({name, value, index, removeItem, item}) =>
+const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeItem, item}) =>
   (  
     <>
     <button
@@ -482,13 +486,7 @@ const Item: React.FC<ItemProps> = ({ item, index, children
 
 return (
     <>
-      <tr key={item.release.id}>
-        <td><a href={item.release.resource_url}>{item.release.title}</a></td>
-        <td>{item.release.artist}</td>
-        <td>{item.release.description}</td>
-        <td>{item.release.format}</td>
-        <td>{children}</td>
-      </tr>
+      <CarouselCard item={item} index={index} children={children}></CarouselCard>
     </>
 );};
 
@@ -499,6 +497,99 @@ type InputWithLabelProps = {
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   isFocused?: boolean;
   children: React.ReactNode;
+}
+
+const useStyles = createStyles((theme) => ({
+  price: {
+    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
+  },
+
+  carousel: {
+    '&:hover': {
+      [`& .${getStylesRef('carouselControls')}`]: {
+        opacity: 1,
+      },
+    },
+  },
+
+  carouselControls: {
+    ref: getStylesRef('carouselControls'),
+    transition: 'opacity 150ms ease',
+    opacity: 0,
+  },
+
+  carouselIndicator: {
+    width: rem(4),
+    height: rem(4),
+    transition: 'width 250ms ease',
+
+    '&[data-active]': {
+      width: rem(16),
+    },
+  },
+}));
+
+
+const CarouselCard: React.FC<CarouselProps> = ({ item, index, children 
+}): JSX.Element =>  {
+  const { classes } = useStyles();
+
+  const images = []
+  for(var i = 0; i < item.release.images.length; i++)
+    { 
+      images.push(item.release.images[i].resource_url);
+    }
+
+  const slides = images.map((image) => (
+    <Carousel.Slide key={image}>
+      <Image src={image} height={220} />
+    </Carousel.Slide>
+  ));
+
+  return (
+    <Card radius="md" withBorder padding="xl">
+      <Card.Section>
+        <Carousel
+          withIndicators
+          loop
+          classNames={{
+            root: classes.carousel,
+            controls: classes.carouselControls,
+            indicator: classes.carouselIndicator,
+          }}
+        >
+          {slides}
+        </Carousel>
+      </Card.Section>
+
+      <Group position="apart" mt="lg">
+        <Text fw={500} fz="lg">
+          {item.release.title}
+        </Text>
+
+        <Group spacing={5}>
+          <IconStar size="1rem" />
+          <Text fz="xs" fw={500}>
+            {item.seller.stats.rating} {item.seller.stats.stars}
+          </Text>
+        </Group>
+      </Group>
+
+      <Text fz="sm" c="dimmed" mt="sm">
+        {item.release.description}
+      </Text>
+
+      <Group position="apart" mt="md">
+        <div>
+          <Text fz="xl" span fw={500} className={classes.price}>
+          {item.price.value} {item.price.currency}
+          </Text>
+        </div>
+
+        <Button radius="md">Buy now</Button>
+      </Group>
+    </Card>
+  );
 }
 
 const InputWithLabel: React.FC<InputWithLabelProps> = ({
