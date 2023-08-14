@@ -11,7 +11,7 @@ import { Table } from '@mantine/core';
 
 
 type StoriesState = {
-  data: Stories;
+  data: Listing[];
   isLoading: boolean;
   isError: boolean;
 }
@@ -22,7 +22,7 @@ type StoriesFetchInitAction = {
 
 type StoriesFetchSuccessAction = {
   type: 'STORIES_FETCH_SUCCESS';
-  payload: Stories;
+  payload: Listing[];
 }
 
 type StoriesFetchFailureAction = {
@@ -31,7 +31,7 @@ type StoriesFetchFailureAction = {
 
 type StoriesRemoveAction = {
   type: 'REMOVE_STORIES';
-  payload: Story;
+  payload: Listing;
 }
 
 type StoriesAction = 
@@ -56,7 +56,7 @@ const useStorageState = (
   return [value, setValue]
 };
 
-const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';//'https://api.discogs.com/database/search?q=Nirvana'
+const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?asc'; 
 
 const storiesReducer = (
   state: StoriesState, action: StoriesAction
@@ -87,7 +87,7 @@ const storiesReducer = (
         isLoading: false,
         isError: false,
         data: state.data.filter(
-          (story) => action.payload.objectID !== story.objectID
+          (story) => action.payload.release.id !== story.release.id
         ),
       };
     default:
@@ -99,11 +99,11 @@ const App = () => {
   
   const [searchTerm, setSearchTerm] = useStorageState(
     'search',
-    'React'
+    'Search'
     );
 
   const [url, setUrl] = React.useState(
-    `${API_ENDPOINT}${searchTerm}`
+    `${API_ENDPOINT}`
   );
 
   /** REDUCER HANDLES USE STATES */
@@ -118,20 +118,39 @@ const App = () => {
     dispatchStories({
       type: 'STORIES_FETCH_INIT',
     });
-    //const headers = { 'Authorization': 'Discogs token=' + 'DeXxTVSPYvYUqQkGyXLpEgNdVGwerOZlQCyGaLEa' };
     
     try {
-      const result = await axios.get(url);
-
+      const result = await axios.get(url, {
+        headers :
+         { 'Authorization': 'Discogs token=' + 'DeXxTVSPYvYUqQkGyXLpEgNdVGwerOZlQCyGaLEa' }
+      })
+      const arr: Vinyl[] = Object.values(result.data);
+      //console.log(arr);
+      const newarr: Listing[] = arr[1];
+      console.log(newarr);
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
-        payload: result.data.hits,
+        payload: newarr,
       });
     } catch { 
       dispatchStories({type: 'STORIES_FETCH_FAILURE'});
     }
   }, [url]);
-  
+
+  //console.log(stories.data);
+  const filteredStories = stories.data.filter(function (story){   
+   if (story.release !== undefined){
+    console.log(story);
+    return story.release.title.toLowerCase().includes(searchTerm.toLowerCase());
+   }
+   else{
+   console.log("Undefined");
+    console.log(story);
+   }
+  });
+
+  console.log(filteredStories);
+
   //useEffect
   React.useEffect(() => {
     handleFetchStories();
@@ -152,12 +171,12 @@ const App = () => {
   const handleSearchSubmit = (
     event: React.ChangeEvent<HTMLFormElement>
     ) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`);
+    setUrl(`${API_ENDPOINT}`);
 
     event.preventDefault();
   }
 
-  const handleRemoveStory = (item: Story) => {
+  const handleRemoveStory = (item: Listing) => {
     dispatchStories({
       type: 'REMOVE_STORIES',
       payload: item,
@@ -198,7 +217,7 @@ const App = () => {
               </Text>
             </>
           ) : (
-            <List list={stories.data} onRemoveItem={handleRemoveStory} />
+            <List list={filteredStories} onRemoveItem={handleRemoveStory} />
           )}
           </div>
         </Grid.Col>
@@ -211,6 +230,147 @@ const App = () => {
 };
 
 //Object Defs
+
+
+type Vinyl = {
+  pagination: Pagination;
+  listings:   Listing[];
+}
+
+type Listing = {
+  id:                      number;
+  resource_url:            string;
+  uri:                     string;
+  status:                  Status;
+  condition:               Condition;
+  sleeve_condition:        Condition;
+  comments:                string;
+  ships_from:              ShipsFrom;
+  posted:                  Date;
+  allow_offers:            boolean;
+  audio:                   boolean;
+  price:                   Price;
+  original_price:          OriginalPrice;
+  shipping_price:          Price;
+  original_shipping_price: OriginalPrice;
+  seller:                  Seller;
+  release:                 Release;
+  in_cart:                 boolean;
+}
+
+enum Condition {
+  Generic = "Generic",
+  GoodG = "Good (G)",
+  GoodPlusG = "Good Plus (G+)",
+  NearMintNMOrM = "Near Mint (NM or M-)",
+  VeryGoodPlusVG = "Very Good Plus (VG+)",
+  VeryGoodVG = "Very Good (VG)",
+}
+
+type OriginalPrice = {
+  curr_abbr: Curr;
+  curr_id:   number;
+  formatted: string;
+  value:     number;
+}
+
+enum Curr {
+  Eur = "EUR",
+}
+
+type Price = {
+  value:    number;
+  currency: Curr;
+}
+
+type Release = {
+  thumbnail:      string;
+  description:    string;
+  images:         Image[];
+  artist:         string;
+  format:         string;
+  resource_url:   string;
+  title:          string;
+  year:           number;
+  id:             number;
+  label:          string;
+  catalog_number: string;
+  stats:          ReleaseStats;
+}
+
+type Image = {
+  type:         Type;
+  uri:          string;
+  resource_url: string;
+  uri150:       string;
+  width:        number;
+  height:       number;
+}
+
+enum Type {
+  Primary = "primary",
+  Secondary = "secondary",
+}
+
+type ReleaseStats = {
+  community: Community;
+  user:      Community;
+}
+
+type Community = {
+  in_wantlist:   number;
+  in_collection: number;
+}
+
+type Seller = {
+  id:              number;
+  username:        Username;
+  avatar_url:      string;
+  stats:           SellerStats;
+  min_order_total: number;
+  html_url:        string;
+  uid:             number;
+  url:             string;
+  payment:         Payment;
+  shipping:        string;
+  resource_url:    string;
+}
+
+enum Payment {
+  PayPalCommerce = "PayPal Commerce",
+}
+
+type SellerStats = {
+  rating: string;
+  stars:  number;
+  total:  number;
+}
+
+enum Username {
+  Ssrl4000 = "ssrl4000",
+}
+
+enum ShipsFrom {
+  Germany = "Germany",
+}
+
+enum Status {
+  ForSale = "For Sale",
+}
+
+type Pagination = {
+  page:     number;
+  pages:    number;
+  per_page: number;
+  items:    number;
+  urls:     Urls;
+}
+
+type Urls = {
+  last: string;
+  next: string;
+}
+
 type Story = {
   objectID: string;
   url: string;
@@ -220,15 +380,16 @@ type Story = {
   points: number;
 };
 
-type Stories = Story[];
+type Vinyls = Vinyl["listings"];
 
 type ListProps = {
-  list: Stories;
-  onRemoveItem: (item: Story) => void;
+  list: Vinyls;
+  onRemoveItem: (item: Listing) => void;
 }
 
 type ItemProps = {
-  item: Story;
+  item: Listing;
+  index: number;
   children: React.ReactNode;
 }
 
@@ -275,10 +436,10 @@ return (
     <caption>Hacker news</caption>
     <thead>{ths}</thead>
     <tbody>
-    {list.map((item) => (
+    {list.map((item, index) => (
         <>
-          <Item key={item.objectID} item={item}>
-            <Button name={item.objectID} type="button" value='Dismiss' removeItem={onRemoveItem} item={item}></Button>
+          <Item key={item.id} index={index} item={item}>
+            <Button name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></Button>
           </Item>
         </>
     ))}
@@ -297,11 +458,12 @@ type ButtonProps = {
   name: string;
   type?: string;
   value: string;
-  removeItem: (item: Story) => void;
-  item: Story;
+  index: number;
+  removeItem: (item: Listing) => void;
+  item: Listing;
 }
 
-const Button: React.FC<ButtonProps> = ({name, value, removeItem, item}) =>
+const Button: React.FC<ButtonProps> = ({name, value, index, removeItem, item}) =>
   (  
     <>
     <button
@@ -315,16 +477,16 @@ const Button: React.FC<ButtonProps> = ({name, value, removeItem, item}) =>
     </>
   );
 
-const Item: React.FC<ItemProps> = ({ item, children 
+const Item: React.FC<ItemProps> = ({ item, index, children 
 }): JSX.Element => {
 
 return (
     <>
-      <tr key={item.objectID}>
-        <td><a href={item.url}>{item.title}</a></td>
-        <td>{item.author}</td>
-        <td>{item.num_comments}</td>
-        <td>{item.points}</td>
+      <tr key={item.release.id}>
+        <td><a href={item.release.resource_url}>{item.release.title}</a></td>
+        <td>{item.release.artist}</td>
+        <td>{item.release.description}</td>
+        <td>{item.release.format}</td>
         <td>{children}</td>
       </tr>
     </>
