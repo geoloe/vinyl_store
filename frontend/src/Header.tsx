@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { createStyles, Header, Container, Group, Burger, rem, Title } from '@mantine/core';
+import { createStyles, Header, Container, Group, Burger, rem } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantine/ds';
 
@@ -73,7 +73,6 @@ export function HeaderSimple({ links }: HeaderSimpleProps) {
     <Header height={60} mb={120}>
       <Container className={classes.header}>
         <MantineLogo size={28} />
-        <Title order={1}>Jules Vinyl Shop</Title>
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>

@@ -1,16 +1,14 @@
 import { ThemeProvider } from './ThemeProvider';
-import { SimpleGrid } from '@mantine/core';
-import { Center, Loader } from '@mantine/core';
-import { Text } from '@mantine/core';
 //import { Welcome } from './Welcome/Welcome';
 import * as React from 'react';
 import axios from 'axios';
 import { HeaderSimple } from './Header'
-import { Grid } from '@mantine/core';
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { createStyles, Image, Button, Card, Group, getStylesRef, rem } from '@mantine/core';
+import { SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
+import { Alert } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
 
 
 type StoriesState = {
@@ -26,6 +24,7 @@ type StoriesFetchInitAction = {
 type StoriesFetchSuccessAction = {
   type: 'STORIES_FETCH_SUCCESS';
   payload: Listing[];
+  page: Pagination;
 }
 
 type StoriesFetchFailureAction = {
@@ -77,7 +76,8 @@ const storiesReducer = (
         isLoading: false,
         isError: false,
         data: action.payload,
-      };
+        page: action.page,
+      }
     case 'STORIES_FETCH_FAILURE':
       return {
         ...state,
@@ -104,15 +104,19 @@ const App = () => {
     'search',
     'Search'
     );
+    
+  const [pageTerm, setPageTerm] = useStorageState(
+    'page',
+    'Page'
+  );
 
   const [url, setUrl] = React.useState(
     `${API_ENDPOINT}`
   );
-
   /** REDUCER HANDLES USE STATES */
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
-    {data: [], isLoading: false, isError: false}
+    {data: [], isLoading: false, isError: false, page: {} as Pagination}
   );
 
   const handleFetchStories = React.useCallback(async () => {
@@ -129,21 +133,22 @@ const App = () => {
       })
       const arr: Vinyl[] = Object.values(result.data);
       //console.log(arr);
-      const newarr: Listing[] = arr[1];
-      console.log(newarr);
+      const listing: Listing[] = arr[1];
+      const page: Pagination = arr[0];
+
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
-        payload: newarr,
+        payload: listing,
+        page: page,
       });
     } catch { 
       dispatchStories({type: 'STORIES_FETCH_FAILURE'});
     }
   }, [url]);
 
-  //console.log(stories.data);
+  console.log(stories.page);
   const filteredStories = stories.data.filter(function (story){   
    if (story.release !== undefined){
-    //Sconsole.log(story);
     return story.release.title.toLowerCase().includes(searchTerm.toLowerCase());
    }
    else{
@@ -152,12 +157,16 @@ const App = () => {
    }
   });
 
-  console.log(filteredStories);
+  //console.log(filteredStories);
 
   //useEffect
   React.useEffect(() => {
     handleFetchStories();
     }, [handleFetchStories]);
+
+  React.useEffect(() => {
+      console.log(url);
+    }, [url]);
 
   //useEffect
   React.useEffect(() => {
@@ -175,8 +184,20 @@ const App = () => {
     event: React.ChangeEvent<HTMLFormElement>
     ) => {
     setUrl(`${API_ENDPOINT}`);
-
     event.preventDefault();
+  }
+
+  const handlePagination = (
+    event: React.MouseEventHandler<HTMLButtonElement>
+    ) => {
+
+    const target = event.target as HTMLButtonElement;
+    if (target) console.log(target.value);
+    
+    setPageTerm(`${target}`);
+    console.log(pageTerm);
+
+    setUrl(`${pageTerm}`);
   }
 
   const handleRemoveStory = (item: Listing) => {
@@ -195,6 +216,9 @@ const App = () => {
     <>
     <ThemeProvider>
     <HeaderSimple links={options}></HeaderSimple>
+    <Center>    
+      <Title size="h1" order={1}>Jules Vinyl Shop</Title>
+    </Center>
     <HeroImageRight></HeroImageRight>
       <Grid >
       <Center maw={400} h={100} mx="auto">
@@ -228,7 +252,7 @@ const App = () => {
               </Text>
             </>
           ) : (
-            <List list={filteredStories} onRemoveItem={handleRemoveStory} />
+            <List list={filteredStories} page={stories.page} onRemoveItem={handleRemoveStory} onPageSelect={handlePagination} />
           )}
           </div>
         </Grid.Col>
@@ -376,8 +400,10 @@ type Pagination = {
 }
 
 type Urls = {
-  last: string;
-  next: string;
+  first?: string;
+  prev?: string;
+  last?: string;
+  next?: string;
 }
 
 type Story = {
@@ -393,18 +419,22 @@ type Vinyls = Vinyl["listings"];
 
 type ListProps = {
   list: Vinyls;
+  page: Pagination;
   onRemoveItem: (item: Listing) => void;
+  onPageSelect: (event: React.MouseEventHandler<HTMLButtonElement>) => void;
 }
 
 type ItemProps = {
   item: Listing;
   index: number;
+  onRemoveItem: (item: Listing) => void;
   children: React.ReactNode;
 }
 
 type CarouselProps = {
   item: Listing;
   index: number;
+  onRemoveItem: (item: Listing) => void;
   children: React.ReactNode;
 }
 
@@ -435,20 +465,57 @@ const SearchForm: React.FC<SearchFormProps> = ({
   </form>
 );
 
-const List: React.FC<ListProps> = ({ list, onRemoveItem }) => {
+const List: React.FC<ListProps> = ({ list, page, onRemoveItem, onPageSelect }) => {
 
 return (
-  <SimpleGrid cols={5}>
-    {list.map((item, index) => (
-        <>
-          <div> 
-            <Item key={item.release.id} index={index} item={item}>
-              <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
-            </Item>
-          </div>
-        </>
-    ))}
-  </SimpleGrid>
+  <>
+    {list.length > 0 ? (
+              <SimpleGrid 
+              cols={4}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 3, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 2, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+                  ]}
+              >
+            {list.map((item, index) => (
+              <>
+                <div> 
+                  <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem}>
+                    <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
+                  </Item>
+                </div>
+              </>
+          ))}          
+              <Text> Select Page </Text>
+                {page.urls.first === undefined ? (
+                <button type="button" disabled>First</button>
+                ): (
+                  <button type="button" value={page.urls.first} onClick={onPageSelect} >First</button>
+                )}
+                {page.urls.prev === undefined ? (
+                  <button type="button" disabled>Prev</button>
+                ): (
+                  <button type="button" value={page.urls.prev} onClick={onPageSelect}>Previous</button>
+                )}
+                {page.urls.next === undefined ? (
+                  <button type="button" disabled>Next</button>
+                ): (
+                  <button type="button" value={page.urls.next} onClick={onPageSelect}>Next</button>
+                )}
+                {page.urls.last === undefined ? (
+                  <button type="button" disabled>Last</button>
+                ): (
+                  <button type="button" value={page.urls.last} onClick={onPageSelect}>Last</button>
+                )}                  
+          </SimpleGrid>
+          ) : (
+            <Alert icon={<IconAlertCircle size="1rem" />} title="Bummer!">
+              No results were found!
+            </Alert>
+          )}
+      </>
 );};
 
 enum ButtonTypes {
@@ -481,12 +548,14 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeIt
     </>
   );
 
-const Item: React.FC<ItemProps> = ({ item, index, children 
+const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem
 }): JSX.Element => {
 
 return (
     <>
-      <CarouselCard item={item} index={index} children={children}></CarouselCard>
+      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem}>
+
+      </CarouselCard>
     </>
 );};
 
@@ -530,7 +599,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
-const CarouselCard: React.FC<CarouselProps> = ({ item, index, children 
+const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem 
 }): JSX.Element =>  {
   const { classes } = useStyles();
 
@@ -585,7 +654,7 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, children
           {item.price.value} {item.price.currency}
           </Text>
         </div>
-
+        <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
         <Button radius="md">Buy now</Button>
       </Group>
     </Card>
