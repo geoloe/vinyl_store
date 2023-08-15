@@ -5,10 +5,10 @@ import axios from 'axios';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination } from '@mantine/core';
+import { Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
 
 
 type StoriesState = {
@@ -214,11 +214,11 @@ const App = () => {
         </SearchForm>
       </Center>
       <Grid >
-        <Grid.Col span={2} > 
+        <Grid.Col span={2}>
         <SimpleGrid  cols={1}
                   spacing="lg"
                   breakpoints={[
-                    { maxWidth: 'md', cols: 2, spacing: 'md' },
+                    { maxWidth: 'md', cols: 1, spacing: 'md' },
                     { maxWidth: 'sm', cols: 1, spacing: 'sm' },
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}>
@@ -245,7 +245,7 @@ const App = () => {
                   ]}>
                 <Grid>
                   <Grid.Col>
-                    <Group spacing="sm">
+                    <Group >
                       <Center>
                         <Text fw={700}>Filter Options</Text>
                       </Center>
@@ -268,34 +268,36 @@ const App = () => {
                       </Group>
                   </Grid.Col>
                   <Grid.Col>
-                    
+                    <Tooltip color="grey" label="Fire it up!" position="bottom"
+      withArrow
+      arrowPosition="center">
+                      <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}><IconFilterSearch/></Button> 
+                    </Tooltip> 
                   </Grid.Col>
                 </Grid>  
-                <Center>
-                  <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}>Get me the Vinyls!!</Button> 
-                </Center>  
+
                   </SimpleGrid>    
               </Box>
 
-        </SimpleGrid>   
-
-        </Grid.Col>
+        </SimpleGrid> 
+        </Grid.Col> 
         <Grid.Col span={10}>
-        <div>
+          <div>
 
-          {stories.isError && <p>Something went wrong... </p>}
+            {stories.isError && <p>Something went wrong... </p>}
 
-          {stories.isLoading ? (
-            <>
-            <Center>
-              <Loader size="xl" variant="oval" />
-            </Center>
-            </>
-          ) : (
-            <List list={filteredStories} page={stories.page} onRemoveItem={handleRemoveStory} onPageSelect={handlePagination} />
-          )}
+            {stories.isLoading ? (
+              <>
+              <Center>
+                <Loader size="xl" variant="oval" />
+              </Center>
+              </>
+            ) : (
+              <List list={filteredStories} page={stories.page} onRemoveItem={handleRemoveStory} onPageSelect={handlePagination} />
+            )}
           </div>
-        </Grid.Col>
+
+        </Grid.Col> 
       </Grid>
     </ThemeProvider>
     </>
@@ -515,7 +517,7 @@ return (
             <Box
                 sx={(theme) => ({
                   backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-                  textAlign: 'center',
+                  textAlign: 'left',
                   padding: theme.spacing.xl,
                   borderRadius: theme.radius.md,
 
@@ -528,32 +530,86 @@ return (
               <Grid>
               <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
               <Grid.Col span={4}>
-              <Center>
-                <div style={{ width: 60 }}>
+                <Center>
                 <Button.Group>
                     {page.urls.first === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>First Page</Button>
+                      <Tooltip
+                          label="First page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                        <Button size="xs" variant="outline" data-disabled><IconChevronsLeft/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.first} onClick={onPageSelect}>First Page</Button>
+                      <Tooltip
+                          label="First page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                        <Button size="xs" variant="outline" value={page.urls.first} onClick={onPageSelect}><IconChevronsLeft/></Button>
+                      </Tooltip>
                     )}
                     {page.urls.prev === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>Previous Page</Button>
+                      <Tooltip
+                         label="Previous page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                      <Button size="xs" variant="outline" data-disabled><IconChevronLeft/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.prev} onClick={onPageSelect}>Previous Page</Button>
+                      <Tooltip
+                      label="Previous page"
+                       color="blue"
+                       withArrow
+                       arrowPosition="center"
+                     >
+                      <Button size="xs" variant="outline" value={page.urls.prev} onClick={onPageSelect}><IconChevronLeft/></Button>
+                      </Tooltip>
                     )}
                     {page.urls.next === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>Next Page</Button>
+                      <Tooltip
+                         label="Next page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                      <Button size="xs" variant="outline" data-disabled><IconChevronRight/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.next} onClick={onPageSelect}>Next Page</Button>
+                      <Tooltip
+                         label="Next page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                      <Button size="xs" variant="outline" value={page.urls.next} onClick={onPageSelect}><IconChevronRight/></Button>
+                      </Tooltip>
                     )}
                     {page.urls.last === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>Last Page</Button>
+                      <Tooltip
+                         label="Last page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                      <Button size="xs" variant="outline" data-disabled><IconChevronsRight/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.last} onClick={onPageSelect}>Last Page</Button>
+                      <Tooltip
+                         label="Last page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                        >
+                      <Button size="xs" variant="outline" value={page.urls.last} onClick={onPageSelect}><IconChevronsRight/></Button>
+                      </Tooltip>
                     )}
-                </Button.Group>
-                </div>
-              </Center>
+                </Button.Group> 
+                </Center>                       
               </Grid.Col>
               <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
             </Grid>
@@ -584,26 +640,90 @@ return (
               <Center>
                 <Button.Group>
                     {page.urls.first === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>First Page</Button>
+                      <Tooltip
+                          label="First page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                        <Button size="xs" variant="outline" data-disabled><IconChevronsLeft/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.first} onClick={onPageSelect}>First Page</Button>
+                      <Tooltip
+                          label="First page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                        <Button size="xs" variant="outline" value={page.urls.first} onClick={onPageSelect}><IconChevronsLeft/></Button>
+                      </Tooltip>
                     )}
                     {page.urls.prev === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>Previous Page</Button>
+                      <Tooltip
+                         label="Previous page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                      <Button size="xs" variant="outline" data-disabled><IconChevronLeft/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.prev} onClick={onPageSelect}>Previous Page</Button>
+                      <Tooltip
+                      label="Previous page"
+                       color="blue"
+                       withArrow
+                       arrowPosition="center"
+                       position="bottom"
+                     >
+                      <Button size="xs" variant="outline" value={page.urls.prev} onClick={onPageSelect}><IconChevronLeft/></Button>
+                      </Tooltip>
                     )}
                     {page.urls.next === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>Next Page</Button>
+                      <Tooltip
+                         label="Next page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                      <Button size="xs" variant="outline" data-disabled><IconChevronRight/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.next} onClick={onPageSelect}>Next Page</Button>
+                      <Tooltip
+                         label="Next page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                      <Button size="xs" variant="outline" value={page.urls.next} onClick={onPageSelect}><IconChevronRight/></Button>
+                      </Tooltip>
                     )}
                     {page.urls.last === undefined ? (
-                      <Button size="xs" variant="outline" data-disabled>Last Page</Button>
+                      <Tooltip
+                         label="Last page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                      <Button size="xs" variant="outline" data-disabled><IconChevronsRight/></Button>
+                      </Tooltip>
                     ): (
-                      <Button size="xs" variant="outline" value={page.urls.last} onClick={onPageSelect}>Last Page</Button>
+                      <Tooltip
+                         label="Last page"
+                          color="blue"
+                          withArrow
+                          arrowPosition="center"
+                          position="bottom"
+                        >
+                      <Button size="xs" variant="outline" value={page.urls.last} onClick={onPageSelect}><IconChevronsRight/></Button>
+                      </Tooltip>
                     )}
-                </Button.Group>
+                </Button.Group> 
               </Center>
               </Grid.Col>
               <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
