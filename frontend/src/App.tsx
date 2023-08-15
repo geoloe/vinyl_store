@@ -5,7 +5,7 @@ import axios from 'axios';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination } from '@mantine/core';
+import { Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
@@ -98,21 +98,19 @@ const storiesReducer = (
   }
 };
 
+
 const App = () => {
   
   const [searchTerm, setSearchTerm] = useStorageState(
     'search',
-    'Search'
+    ''
     );
-    
-  const [pageTerm, setPageTerm] = useStorageState(
-    'page',
-    'Page'
-  );
+
 
   const [url, setUrl] = React.useState(
     `${API_ENDPOINT}`
   );
+
   /** REDUCER HANDLES USE STATES */
   const [stories, dispatchStories] = React.useReducer(
     storiesReducer,
@@ -120,13 +118,13 @@ const App = () => {
   );
 
   const handleFetchStories = React.useCallback(async () => {
-    if(!searchTerm) return;
 
     dispatchStories({
       type: 'STORIES_FETCH_INIT',
     });
     
     try {
+      console.log('New API URL: ' + url);
       const result = await axios.get(url, {
         headers :
          { 'Authorization': 'Discogs token=' + 'DeXxTVSPYvYUqQkGyXLpEgNdVGwerOZlQCyGaLEa' }
@@ -135,7 +133,6 @@ const App = () => {
       //console.log(arr);
       const listing: Listing[] = arr[1];
       const page: Pagination = arr[0];
-
       dispatchStories({
         type: 'STORIES_FETCH_SUCCESS',
         payload: listing,
@@ -146,7 +143,6 @@ const App = () => {
     }
   }, [url]);
 
-  console.log(stories.page);
   const filteredStories = stories.data.filter(function (story){   
    if (story.release !== undefined){
     return story.release.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -157,16 +153,10 @@ const App = () => {
    }
   });
 
-  //console.log(filteredStories);
-
   //useEffect
   React.useEffect(() => {
     handleFetchStories();
     }, [handleFetchStories]);
-
-  React.useEffect(() => {
-      console.log(url);
-    }, [url]);
 
   //useEffect
   React.useEffect(() => {
@@ -183,21 +173,19 @@ const App = () => {
   const handleSearchSubmit = (
     event: React.ChangeEvent<HTMLFormElement>
     ) => {
-    setUrl(`${API_ENDPOINT}`);
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
     event.preventDefault();
   }
 
   const handlePagination = (
     event: React.MouseEventHandler<HTMLButtonElement>
+    //event: React.ChangeEvent<HTMLInputElement>
     ) => {
 
-    const target = event.target as HTMLButtonElement;
-    if (target) console.log(target.value);
-    
-    setPageTerm(`${target}`);
-    console.log(pageTerm);
+    const button: HTMLButtonElement = event.currentTarget;
 
-    setUrl(`${pageTerm}`);
+    setUrl(`${button.value}`);
+    console.log(button.value);
   }
 
   const handleRemoveStory = (item: Listing) => {
@@ -216,11 +204,7 @@ const App = () => {
     <>
     <ThemeProvider>
     <HeaderSimple links={options}></HeaderSimple>
-    <Center>    
-      <Title size="h1" order={1}>Jules Vinyl Shop</Title>
-    </Center>
     <HeroImageRight></HeroImageRight>
-      <Grid >
       <Center maw={400} h={100} mx="auto">
         <SearchForm 
                 searchTerm={searchTerm}
@@ -229,7 +213,71 @@ const App = () => {
                 >
         </SearchForm>
       </Center>
-        <Grid.Col span={2}>    
+      <Grid >
+        <Grid.Col span={2} > 
+        <SimpleGrid  cols={1}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 2, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+                  ]}>
+
+                <Box
+                sx={(theme) => ({
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                  textAlign: 'center',
+                  padding: theme.spacing.xl,
+                  borderRadius: theme.radius.md,
+
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+                  },
+                })}
+              >
+                <SimpleGrid  cols={1}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 2, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+                  ]}>
+                <Grid>
+                  <Grid.Col>
+                    <Group spacing="sm">
+                      <Center>
+                        <Text fw={700}>Filter Options</Text>
+                      </Center>
+                      <Checkbox
+                          label="Sort by Title Ascending"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="Sort by Title Descending"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="On Sale"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="New Stuff"
+                          size="xs"
+                      />  
+                      </Group>
+                  </Grid.Col>
+                  <Grid.Col>
+                    
+                  </Grid.Col>
+                </Grid>  
+                <Center>
+                  <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}>Get me the Vinyls!!</Button> 
+                </Center>  
+                  </SimpleGrid>    
+              </Box>
+
+        </SimpleGrid>   
 
         </Grid.Col>
         <Grid.Col span={10}>
@@ -239,17 +287,9 @@ const App = () => {
 
           {stories.isLoading ? (
             <>
-              <Text
-                variant="gradient"
-                gradient={{ from: 'indigo', to: 'cyan', deg: 45 }}
-                sx={{ fontFamily: 'Greycliff CF, sans-serif' }}
-                ta="center"
-                fz="xl"
-                fw={700}
-              >
-                Loading data. Please Wait.
-                <Loader />
-              </Text>
+            <Center>
+              <Loader size="xl" variant="oval" />
+            </Center>
             </>
           ) : (
             <List list={filteredStories} page={stories.page} onRemoveItem={handleRemoveStory} onPageSelect={handlePagination} />
@@ -421,7 +461,7 @@ type ListProps = {
   list: Vinyls;
   page: Pagination;
   onRemoveItem: (item: Listing) => void;
-  onPageSelect: (event: React.MouseEventHandler<HTMLButtonElement>) => void;
+  onPageSelect: React.MouseEventHandler<HTMLButtonElement>
 }
 
 type ItemProps = {
@@ -435,6 +475,7 @@ type CarouselProps = {
   item: Listing;
   index: number;
   onRemoveItem: (item: Listing) => void;
+  new_record: boolean;
   children: React.ReactNode;
 }
 
@@ -470,7 +511,53 @@ const List: React.FC<ListProps> = ({ list, page, onRemoveItem, onPageSelect }) =
 return (
   <>
     {list.length > 0 ? (
-              <SimpleGrid 
+            <>
+            <Box
+                sx={(theme) => ({
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                  textAlign: 'center',
+                  padding: theme.spacing.xl,
+                  borderRadius: theme.radius.md,
+
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+                  },
+                })}
+              >
+              <Grid>
+              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
+              <Grid.Col span={4}>
+              <Center>
+                <div style={{ width: 60 }}>
+                <Button.Group>
+                    {page.urls.first === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>First Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.first} onClick={onPageSelect}>First Page</Button>
+                    )}
+                    {page.urls.prev === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>Previous Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.prev} onClick={onPageSelect}>Previous Page</Button>
+                    )}
+                    {page.urls.next === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>Next Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.next} onClick={onPageSelect}>Next Page</Button>
+                    )}
+                    {page.urls.last === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>Last Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.last} onClick={onPageSelect}>Last Page</Button>
+                    )}
+                </Button.Group>
+                </div>
+              </Center>
+              </Grid.Col>
+              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
+            </Grid>
+            <SimpleGrid 
               cols={4}
                   spacing="lg"
                   breakpoints={[
@@ -488,28 +575,42 @@ return (
                 </div>
               </>
           ))}          
-              <Text> Select Page </Text>
-                {page.urls.first === undefined ? (
-                <button type="button" disabled>First</button>
-                ): (
-                  <button type="button" value={page.urls.first} onClick={onPageSelect} >First</button>
-                )}
-                {page.urls.prev === undefined ? (
-                  <button type="button" disabled>Prev</button>
-                ): (
-                  <button type="button" value={page.urls.prev} onClick={onPageSelect}>Previous</button>
-                )}
-                {page.urls.next === undefined ? (
-                  <button type="button" disabled>Next</button>
-                ): (
-                  <button type="button" value={page.urls.next} onClick={onPageSelect}>Next</button>
-                )}
-                {page.urls.last === undefined ? (
-                  <button type="button" disabled>Last</button>
-                ): (
-                  <button type="button" value={page.urls.last} onClick={onPageSelect}>Last</button>
-                )}                  
-          </SimpleGrid>
+              
+                 
+            </SimpleGrid>
+            <Grid>
+              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
+              <Grid.Col span={4}>
+              <Center>
+                <Button.Group>
+                    {page.urls.first === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>First Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.first} onClick={onPageSelect}>First Page</Button>
+                    )}
+                    {page.urls.prev === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>Previous Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.prev} onClick={onPageSelect}>Previous Page</Button>
+                    )}
+                    {page.urls.next === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>Next Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.next} onClick={onPageSelect}>Next Page</Button>
+                    )}
+                    {page.urls.last === undefined ? (
+                      <Button size="xs" variant="outline" data-disabled>Last Page</Button>
+                    ): (
+                      <Button size="xs" variant="outline" value={page.urls.last} onClick={onPageSelect}>Last Page</Button>
+                    )}
+                </Button.Group>
+              </Center>
+              </Grid.Col>
+              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
+            </Grid>
+            </Box>
+            
+          </>
           ) : (
             <Alert icon={<IconAlertCircle size="1rem" />} title="Bummer!">
               No results were found!
@@ -551,9 +652,18 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeIt
 const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem
 }): JSX.Element => {
 
+  const current_date = new Date(item.posted);
+  console.log(current_date);
+  const date_ref = new Date(2023, 4, 15);
+  let new_record = true;
+
+  if(current_date < date_ref) {
+    new_record = false;
+  }
+
 return (
     <>
-      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem}>
+      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record}>
 
       </CarouselCard>
     </>
@@ -599,13 +709,15 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
-const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem 
+const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_record 
 }): JSX.Element =>  {
   const { classes } = useStyles();
 
   const images = []
   for(var i = 0; i < item.release.images.length; i++)
     { 
+      if(i > 0)
+        break;
       images.push(item.release.images[i].resource_url);
     }
 
@@ -615,6 +727,15 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem
     </Carousel.Slide>
   ));
 
+  
+    const avatar = (
+      <Avatar
+        alt={item.seller.resource_url}
+        size={24}
+        mr={5}
+        src={item.seller.avatar_url}
+      />
+    );
   return (
     <Card radius="md" withBorder padding="xl">
       <Card.Section>
@@ -641,6 +762,17 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem
           <Text fz="xs" fw={500}>
             {item.seller.stats.rating} {item.seller.stats.stars}
           </Text>
+            <Group>
+              {new_record ? (
+              <Badge pl={0} size="lg" color="teal" radius="xl" leftSection={avatar}>
+                New!
+              </Badge>
+              ) :(
+              <Badge pl={0} size="lg" color="red" radius="xl" leftSection={avatar}>
+                On Sale!
+              </Badge>
+              )}
+            </Group>
         </Group>
       </Group>
 
@@ -651,7 +783,7 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem
       <Group position="apart" mt="md">
         <div>
           <Text fz="xl" span fw={500} className={classes.price}>
-          {item.price.value} {item.price.currency}
+          {item.original_price.formatted}
           </Text>
         </div>
         <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
@@ -688,6 +820,7 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
          type={type} 
          value={value} 
          onChange={onInputChange}
+         placeholder='Search...'
          />
     </React.Fragment>
 );};

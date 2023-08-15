@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { createStyles, Header, Container, Group, Burger, rem } from '@mantine/core';
+import { ActionIcon, createStyles, Header, Container, Group, Burger, rem, Center } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantine/ds';
+import { IconVinyl } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -9,6 +10,11 @@ const useStyles = createStyles((theme) => ({
     justifyContent: 'space-between',
     alignItems: 'center',
     height: '100%',
+  },
+  search: {
+    [theme.fn.smallerThan('xs')]: {
+      display: 'none',
+    },
   },
 
   links: {
@@ -72,11 +78,12 @@ export function HeaderSimple({ links }: HeaderSimpleProps) {
   return (
     <Header height={60} mb={120}>
       <Container className={classes.header}>
-        <MantineLogo size={28} />
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>
-
+            <ActionIcon size="xl" radius="xl">
+              <IconVinyl size="2.125rem" />
+            </ActionIcon>
         <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
       </Container>
     </Header>
