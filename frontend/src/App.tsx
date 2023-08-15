@@ -10,302 +10,7 @@ import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
 
-
-type StoriesState = {
-  data: Listing[];
-  isLoading: boolean;
-  isError: boolean;
-}
-
-type StoriesFetchInitAction = {
-  type: 'STORIES_FETCH_INIT';
-}
-
-type StoriesFetchSuccessAction = {
-  type: 'STORIES_FETCH_SUCCESS';
-  payload: Listing[];
-  page: Pagination;
-}
-
-type StoriesFetchFailureAction = {
-  type: 'STORIES_FETCH_FAILURE';
-}
-
-type StoriesRemoveAction = {
-  type: 'REMOVE_STORIES';
-  payload: Listing;
-}
-
-type StoriesAction = 
-  StoriesFetchInitAction
-  | StoriesFetchSuccessAction
-  | StoriesFetchFailureAction
-  | StoriesRemoveAction;
-
-//Define custom hook
-const useStorageState = (
-  key: string,
-  initialState: string
-): [string, (newValue: string) => void ] => {
-  const [value, setValue] = React.useState(
-    localStorage.getItem(key) || initialState
-  );
-
-  React.useEffect(() => {
-    localStorage.setItem(key, value);
-  }, [value, key]);
-
-  return [value, setValue]
-};
-
-const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?asc'; 
-
-const storiesReducer = (
-  state: StoriesState, action: StoriesAction
-) => {
-  switch (action.type) {
-    case 'STORIES_FETCH_INIT':
-      return {
-        ...state,
-        isLoading: true,
-        isError: false,
-      };
-    case 'STORIES_FETCH_SUCCESS':
-      return {
-        ...state,
-        isLoading: false,
-        isError: false,
-        data: action.payload,
-        page: action.page,
-      }
-    case 'STORIES_FETCH_FAILURE':
-      return {
-        ...state,
-        isLoading: false,
-        isError: true,
-      };
-    case 'REMOVE_STORIES':
-      return {
-        ...state,
-        isLoading: false,
-        isError: false,
-        data: state.data.filter(
-          (story) => action.payload.release.id !== story.release.id
-        ),
-      };
-    default:
-      throw new Error();
-  }
-};
-
-
-const App = () => {
-  
-  const [searchTerm, setSearchTerm] = useStorageState(
-    'search',
-    ''
-    );
-
-
-  const [url, setUrl] = React.useState(
-    `${API_ENDPOINT}`
-  );
-
-  /** REDUCER HANDLES USE STATES */
-  const [stories, dispatchStories] = React.useReducer(
-    storiesReducer,
-    {data: [], isLoading: false, isError: false, page: {} as Pagination}
-  );
-
-  const handleFetchStories = React.useCallback(async () => {
-
-    dispatchStories({
-      type: 'STORIES_FETCH_INIT',
-    });
-    
-    try {
-      console.log('New API URL: ' + url);
-      const result = await axios.get(url, {
-        headers :
-         { 'Authorization': 'Discogs token=' + 'DeXxTVSPYvYUqQkGyXLpEgNdVGwerOZlQCyGaLEa' }
-      })
-      const arr: Vinyl[] = Object.values(result.data);
-      //console.log(arr);
-      const listing: Listing[] = arr[1];
-      const page: Pagination = arr[0];
-      dispatchStories({
-        type: 'STORIES_FETCH_SUCCESS',
-        payload: listing,
-        page: page,
-      });
-    } catch { 
-      dispatchStories({type: 'STORIES_FETCH_FAILURE'});
-    }
-  }, [url]);
-
-  const filteredStories = stories.data.filter(function (story){   
-   if (story.release !== undefined){
-    return story.release.title.toLowerCase().includes(searchTerm.toLowerCase());
-   }
-   else{
-   console.log("Undefined");
-    console.log(story);
-   }
-  });
-
-  //useEffect
-  React.useEffect(() => {
-    handleFetchStories();
-    }, [handleFetchStories]);
-
-  //useEffect
-  React.useEffect(() => {
-    localStorage.setItem('search', searchTerm);
-    }, [searchTerm]);
-
-
-  const handleSearchInput = (
-    event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-    setSearchTerm(event.target.value);
-  };
-
-  const handleSearchSubmit = (
-    event: React.ChangeEvent<HTMLFormElement>
-    ) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`);
-    event.preventDefault();
-  }
-
-  const handlePagination = (
-    event: React.MouseEventHandler<HTMLButtonElement>
-    //event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-
-    const button: HTMLButtonElement = event.currentTarget;
-
-    setUrl(`${button.value}`);
-    console.log(button.value);
-  }
-
-  const handleRemoveStory = (item: Listing) => {
-    dispatchStories({
-      type: 'REMOVE_STORIES',
-      payload: item,
-    });
-  };
-
-  const options = [
-    { link: 'Login', label: 'Log In' },
-     { link: 'Register', label: 'Register' }
-   ]
-
-  return (
-    <>
-    <ThemeProvider>
-    <HeaderSimple links={options}></HeaderSimple>
-    <HeroImageRight></HeroImageRight>
-      <Center maw={400} h={100} mx="auto">
-        <SearchForm 
-                searchTerm={searchTerm}
-                onSearchInput={handleSearchInput}
-                onSearchSubmit={handleSearchSubmit}
-                >
-        </SearchForm>
-      </Center>
-      <Grid >
-        <Grid.Col span={2}>
-        <SimpleGrid  cols={1}
-                  spacing="lg"
-                  breakpoints={[
-                    { maxWidth: 'md', cols: 1, spacing: 'md' },
-                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
-                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
-                  ]}>
-
-                <Box
-                sx={(theme) => ({
-                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-                  textAlign: 'center',
-                  padding: theme.spacing.xl,
-                  borderRadius: theme.radius.md,
-
-                  '&:hover': {
-                    backgroundColor:
-                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
-                  },
-                })}
-              >
-                <SimpleGrid  cols={1}
-                  spacing="lg"
-                  breakpoints={[
-                    { maxWidth: 'md', cols: 2, spacing: 'md' },
-                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
-                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
-                  ]}>
-                <Grid>
-                  <Grid.Col>
-                    <Group >
-                      <Center>
-                        <Text fw={700}>Filter Options</Text>
-                      </Center>
-                      <Checkbox
-                          label="Sort by Title Ascending"
-                          size="xs"
-                      />
-                      <Checkbox
-                          label="Sort by Title Descending"
-                          size="xs"
-                      />
-                      <Checkbox
-                          label="On Sale"
-                          size="xs"
-                      />
-                      <Checkbox
-                          label="New Stuff"
-                          size="xs"
-                      />  
-                      </Group>
-                  </Grid.Col>
-                  <Grid.Col>
-                    <Tooltip color="grey" label="Fire it up!" position="bottom"
-      withArrow
-      arrowPosition="center">
-                      <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}><IconFilterSearch/></Button> 
-                    </Tooltip> 
-                  </Grid.Col>
-                </Grid>  
-
-                  </SimpleGrid>    
-              </Box>
-
-        </SimpleGrid> 
-        </Grid.Col> 
-        <Grid.Col span={10}>
-          <div>
-
-            {stories.isError && <p>Something went wrong... </p>}
-
-            {stories.isLoading ? (
-              <>
-              <Center>
-                <Loader size="xl" variant="oval" />
-              </Center>
-              </>
-            ) : (
-              <List list={filteredStories} page={stories.page} onRemoveItem={handleRemoveStory} onPageSelect={handlePagination} />
-            )}
-          </div>
-
-        </Grid.Col> 
-      </Grid>
-    </ThemeProvider>
-    </>
-  );
-};
-
-//Object Defs
-
+/*Object Defs*/
 
 type Vinyl = {
   pagination: Pagination;
@@ -448,16 +153,25 @@ type Urls = {
   next?: string;
 }
 
-type Story = {
-  objectID: string;
-  url: string;
-  title: string;
-  author: string;
-  num_comments: number;
-  points: number;
-};
+enum ButtonTypes {
+  "button",
+  "submit",
+  "reset",
+  undefined
+} 
+
+type DeleteButtonProps = {
+  name: string;
+  type?: string;
+  value: string;
+  index: number;
+  removeItem: (item: Listing) => void;
+  item: Listing;
+}
 
 type Vinyls = Vinyl["listings"];
+
+//Props Defs
 
 type ListProps = {
   list: Vinyls;
@@ -487,6 +201,313 @@ type SearchFormProps = {
   onSearchSubmit: (event: React.ChangeEvent<HTMLFormElement>) => void;
   children: React.ReactNode;
 }
+
+type InputWithLabelProps = {
+  id: string;
+  value: string;
+  type?: string;
+  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  isFocused?: boolean;
+  children: React.ReactNode;
+}
+
+// Actions and States Defs
+
+type VinylsState = {
+  data: Listing[];
+  isLoading: boolean;
+  isError: boolean;
+}
+
+type VinylsFetchInitAction = {
+  type: 'VINYLS_FETCH_INIT';
+}
+
+type VinylsFetchSuccessAction = {
+  type: 'VINYLS_FETCH_SUCCESS';
+  payload: Listing[];
+  page: Pagination;
+}
+
+type VinylsFetchFailureAction = {
+  type: 'VINYLS_FETCH_FAILURE';
+}
+
+type VinylsRemoveAction = {
+  type: 'REMOVE_VINYLS';
+  payload: Listing;
+}
+
+type VinylsAction = 
+  VinylsFetchInitAction
+  | VinylsFetchSuccessAction
+  | VinylsFetchFailureAction
+  | VinylsRemoveAction;
+
+//Define custom hook
+const useStorageState = (
+  key: string,
+  initialState: string
+): [string, (newValue: string) => void ] => {
+  const [value, setValue] = React.useState(
+    localStorage.getItem(key) || initialState
+  );
+
+  React.useEffect(() => {
+    localStorage.setItem(key, value);
+  }, [value, key]);
+
+  return [value, setValue]
+};
+
+const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?asc'; 
+
+const vinylsReducer = (
+  state: VinylsState, action: VinylsAction
+) => {
+  switch (action.type) {
+    case 'VINYLS_FETCH_INIT':
+      return {
+        ...state,
+        isLoading: true,
+        isError: false,
+      };
+    case 'VINYLS_FETCH_SUCCESS':
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        data: action.payload,
+        page: action.page,
+      }
+    case 'VINYLS_FETCH_FAILURE':
+      return {
+        ...state,
+        isLoading: false,
+        isError: true,
+      };
+    case 'REMOVE_VINYLS':
+      return {
+        ...state,
+        isLoading: false,
+        isError: false,
+        data: state.data.filter(
+          (vinyl) => action.payload.release.id !== vinyl.release.id
+        ),
+      };
+    default:
+      throw new Error();
+  }
+};
+
+
+const App = () => {
+  
+  const [searchTerm, setSearchTerm] = useStorageState(
+    'search',
+    ''
+    );
+
+
+  const [url, setUrl] = React.useState(
+    `${API_ENDPOINT}`
+  );
+
+  /** REDUCER HANDLES USE STATES */
+  const [vinyls, dispatchVinyls] = React.useReducer(
+    vinylsReducer,
+    {data: [], isLoading: false, isError: false, page: {} as Pagination}
+  );
+
+  const handleFetchVinyls = React.useCallback(async () => {
+
+    dispatchVinyls({
+      type: 'VINYLS_FETCH_INIT',
+    });
+    
+    try {
+      console.log('New API URL: ' + url);
+      const result = await axios.get(url, {
+        headers :
+         { 'Authorization': 'Discogs token=' + 'DeXxTVSPYvYUqQkGyXLpEgNdVGwerOZlQCyGaLEa' }
+      })
+      //Convert JSON to Vinyl and Pagination type
+      const arr: Vinyl[] = Object.values(result.data);
+      const listing: Listing[] = arr[1];
+      const page: Pagination = arr[0];
+
+      dispatchVinyls({
+        type: 'VINYLS_FETCH_SUCCESS',
+        payload: listing,
+        page: page,
+      });
+    } catch { 
+      dispatchVinyls({type: 'VINYLS_FETCH_FAILURE'});
+    }
+  }, [url]);
+
+  const filteredVinyls = vinyls.data.filter(function (vinyl){   
+   if (vinyl.release !== undefined){
+    return vinyl.release.title.toLowerCase().includes(searchTerm.toLowerCase());
+   }
+   else{
+   console.log("Undefined");
+    console.log(vinyl);
+   }
+  });
+
+  //useEffect for API Fetch
+  React.useEffect(() => {
+    handleFetchVinyls();
+    }, [handleFetchVinyls]);
+
+  //useEffect for onInput typing search bar
+  React.useEffect(() => {
+    localStorage.setItem('search', searchTerm);
+    }, [searchTerm]);
+
+  /*Start Event Handlers*/
+  const handleSearchInput = (
+    event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleSearchSubmit = (
+    event: React.ChangeEvent<HTMLFormElement>
+    ) => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
+    event.preventDefault();
+  }
+
+  const handlePagination = (
+    event: React.MouseEventHandler<HTMLButtonElement>
+    //event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+
+    const button: HTMLButtonElement = event.currentTarget;
+
+    setUrl(`${button.value}`);
+    console.log(button.value);
+  }
+
+  const handleRemoveVinyl = (item: Listing) => {
+    dispatchVinyls({
+      type: 'REMOVE_VINYLS',
+      payload: item,
+    });
+  };
+  /*End Event Handlers*/
+
+  //Define Header Nav Items
+  const options = [
+    { link: 'Login', label: 'Log In' },
+     { link: 'Register', label: 'Register' }
+   ]
+
+  return (
+    <>
+    <ThemeProvider>
+    <HeaderSimple links={options}></HeaderSimple>
+    <HeroImageRight></HeroImageRight>
+      <Center maw={400} h={100} mx="auto">
+        <SearchForm 
+                searchTerm={searchTerm}
+                onSearchInput={handleSearchInput}
+                onSearchSubmit={handleSearchSubmit}
+                >
+        </SearchForm>
+      </Center>
+      <Grid >
+        <Grid.Col span={2}>
+        <SimpleGrid  cols={1}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 1, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+                  ]}>
+
+                <Box
+                sx={(theme) => ({
+                  backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+                  textAlign: 'center',
+                  padding: theme.spacing.xl,
+                  borderRadius: theme.radius.md,
+
+                  '&:hover': {
+                    backgroundColor:
+                      theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[1],
+                  },
+                })}
+              >
+                <SimpleGrid  cols={1}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 2, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+                  ]}>
+                <Grid>
+                  <Grid.Col>
+                    <Group >
+                      <Center>
+                        <Text fw={700}>Filter Options</Text>
+                      </Center>
+                      <Checkbox
+                          label="Sort by Title Ascending"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="Sort by Title Descending"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="On Sale"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="New Stuff"
+                          size="xs"
+                      />  
+                      </Group>
+                  </Grid.Col>
+                  <Grid.Col>
+                    <Tooltip color="grey" label="Fire it up!" position="bottom"
+      withArrow
+      arrowPosition="center">
+                      <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}><IconFilterSearch/></Button> 
+                    </Tooltip> 
+                  </Grid.Col>
+                </Grid>  
+
+                  </SimpleGrid>    
+              </Box>
+
+        </SimpleGrid> 
+        </Grid.Col> 
+        <Grid.Col span={10}>
+          <div>
+
+            {vinyls.isError && <p>Something went wrong... </p>}
+
+            {vinyls.isLoading ? (
+              <>
+              <Center>
+                <Loader size="xl" variant="oval" />
+              </Center>
+              </>
+            ) : (
+              <List list={filteredVinyls} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} />
+            )}
+          </div>
+
+        </Grid.Col> 
+      </Grid>
+    </ThemeProvider>
+    </>
+  );
+};
 
 const SearchForm: React.FC<SearchFormProps> = ({
   searchTerm,
@@ -739,22 +760,6 @@ return (
       </>
 );};
 
-enum ButtonTypes {
-  "button",
-  "submit",
-  "reset",
-  undefined
-} 
-
-type DeleteButtonProps = {
-  name: string;
-  type?: string;
-  value: string;
-  index: number;
-  removeItem: (item: Listing) => void;
-  item: Listing;
-}
-
 const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeItem, item}) =>
   (  
     <>
@@ -789,14 +794,6 @@ return (
     </>
 );};
 
-type InputWithLabelProps = {
-  id: string;
-  value: string;
-  type?: string;
-  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  isFocused?: boolean;
-  children: React.ReactNode;
-}
 
 const useStyles = createStyles((theme) => ({
   price: {
@@ -922,7 +919,7 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
   children
 }) => {
 
-  const inputRef = React.useRef<HTMLInputElement>(null);
+const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     if (isFocused && inputRef.current){
