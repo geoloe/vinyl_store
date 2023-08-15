@@ -17,4 +17,7 @@
 
 ## Preview
 
+![Screenshot of the live website]([https://github.com/geoloe/vinyl_store/blob/3d72ff7bc82648641c657f12ee60960bde6e4a4f/Home%201.png])
 
+
+![Screenshot of the live website]([https://github.com/geoloe/vinyl_store/blob/3d72ff7bc82648641c657f12ee60960bde6e4a4f/Home%202.png])
