@@ -6,7 +6,7 @@ import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Select, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
+import { NumberInput, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
@@ -179,6 +179,7 @@ type ListProps = {
   page: Pagination;
   onRemoveItem: (item: Listing) => void;
   onPageSelect: React.MouseEventHandler<HTMLButtonElement>
+  onPagesPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 type ItemProps = {
@@ -261,7 +262,7 @@ const useStorageState = (
   return [value, setValue]
 };
 
-const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?asc'; 
+const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?per_page='; 
 
 const vinylsReducer = (
   state: VinylsState, action: VinylsAction
@@ -308,10 +309,13 @@ const App = () => {
     'search',
     ''
     );
+  const [itemsPerPage, setItemsPerPage] = React.useState(
+    '50'
+  )
 
 
   const [url, setUrl] = React.useState(
-    `${API_ENDPOINT}`
+    `${API_ENDPOINT}${itemsPerPage}`
   );
 
   /** REDUCER HANDLES USE STATES */
@@ -398,6 +402,94 @@ const App = () => {
       payload: item,
     });
   };
+  const [formSort, setFormSort] = React.useState(
+    {"onsale": false,
+    "lp":false,
+    "7": false,
+    "12": false,
+    "media_m": false,
+    "media_nm": false,
+    "media_vgp":false,
+    "media_vg":false,
+    "media_g": false,
+    "media_f": false,
+    "sleeve_m": false,
+    "sleeve_nm": false,
+    "sleeve_vgp":false,
+    "sleeve_vg":false,
+    "sleeve_g":false,
+    "sleeve_f": false,
+    }
+  )
+  
+
+  const sortedList: Listing[] = filteredVinyls.filter(function (vinyl)
+  {
+    if (formSort.media_m){
+      return vinyl.condition.includes("Mint (M)")
+    }
+    else if (formSort.media_nm){
+      return vinyl.condition.includes("Near Mint (NM or M-)")
+    }
+    else if (formSort.media_vgp){
+      return vinyl.condition.includes("Very Good Plus (VG+)")
+    }
+    else if (formSort.media_vg){
+      return vinyl.condition.includes("Very Good (VG)")
+    }
+    else if (formSort.media_g){
+      return vinyl.condition.includes("Good (G)")
+    }
+    else if (formSort.media_f){
+      return vinyl.condition.includes("Fair (F)")
+    }
+    else if (formSort.sleeve_m){
+      return vinyl.condition.includes("Near Mint (NM or M-)")
+    }
+    else if (formSort.sleeve_nm){
+      return vinyl.sleeve_condition.includes("Very Good Plus (VG+)")
+    }
+    else if (formSort.sleeve_vgp){
+      return vinyl.sleeve_condition.includes("Very Good (VG)")
+    }
+    else if (formSort.sleeve_g){
+      return vinyl.sleeve_condition.includes("Good (G)")
+    }
+    else if (formSort.sleeve_f){
+      return vinyl.sleeve_condition.includes("Fair (F)")
+    }
+    else if (formSort.onsale){
+      return vinyl.status.includes("For Sale")
+    }
+    else if (formSort.lp){
+      return vinyl.release.format.includes("LP");
+    }
+    else if (formSort[12]){
+      return vinyl.release.format.includes("12");
+    }
+    else if (formSort[7]){
+      return vinyl.release.format.includes("7");
+    }
+  });
+
+  const checkboxesUsed = Object.values(formSort).some(val => val === true);
+
+  const handleCheckboxSort = (
+    event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+    const { value, checked } = event.target;
+    setFormSort(prevState => ({
+        ...prevState,
+        [value]: checked
+    }));
+  }
+
+  const handleItemsPerPage = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    setItemsPerPage(event.target.value);
+    setUrl(`${API_ENDPOINT}${event.target.value}`);
+  }
   /*End Event Handlers*/
 
   //Define Header Nav Items
@@ -454,54 +546,52 @@ const App = () => {
                     <Group >
                         <Text fw={700}>Filter Options</Text>
                       <Checkbox
-                          label="New Stuff"
-                          size="xs"
-                      />
-                      <Checkbox
-                          label="On Sale"
-                          size="xs"
-                      />
-                      <Checkbox
                           label="Vinyl"
                           size="xs"
+                          onChange={handleCheckboxSort}
+                          value="onsale"
                       />
                       <Checkbox
-                          label="Not Vinyl"
+                          label="LP"
                           size="xs"
-                      />  
+                          onChange={handleCheckboxSort}
+                          value="lp"
+                      />
+                      <Checkbox
+                          label='7" Single'
+                          size="xs"
+                          onChange={handleCheckboxSort}
+                          value="7"
+                      />
+                      <Checkbox
+                          label='12" '
+                          size="xs"
+                          onChange={handleCheckboxSort}
+                          value="12"
+                      />
                       </Group>
                       <br></br>
-                      <Checkbox.Group
-                          defaultValue={['media_condition']}
-                          label="Media Condition"
-                          size='xs'
-                        >
-                      <br></br>                          
+                      <br></br>  
+                      <Text>Media Condition</Text>                        
                       <Group>
-                        <Checkbox size="xs" value="mint" label="Mint" />
-                        <Checkbox size="xs" value="near mint" label="Near Mint" />
-                        <Checkbox size="xs" value="very good plus" label="Very Good Plus" />
-                        <Checkbox size="xs" value="very good" label="Very Good" />
-                        <Checkbox size="xs" value="good" label="Good" />
-                        <Checkbox size="xs" value="fair" label="Fair" />
+                        <Checkbox size="xs" value="media_m" label="Mint" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="media_nm" label="Near Mint" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="media_vgp" label="Very Good Plus" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="media_vg" label="Very Good" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="media_g" label="Good" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="media_f" label="Fair" onChange={handleCheckboxSort}/>
                       </Group>
-                      </Checkbox.Group>
                       <br></br>
-                      <Checkbox.Group
-                          defaultValue={['sleeve_condition']}
-                          label="Sleeve Condition"
-                          size='xs'
-                        >
                       <br></br>
+                      <Text>Sleeve Condition</Text>  
                       <Group>
-                        <Checkbox size="xs" value="mint" label="Mint" />
-                        <Checkbox size="xs" value="near mint" label="Near Mint" />
-                        <Checkbox size="xs" value="very good plus" label="Very Good Plus" />
-                        <Checkbox size="xs" value="very good" label="Very Good" />
-                        <Checkbox size="xs" value="good" label="Good" />
-                        <Checkbox size="xs" value="fair" label="Fair" />
+                        <Checkbox size="xs" value="sleeve_m" label="Mint" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="sleeve_nm" label="Near Mint" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="sleeve_vgp" label="Very Good Plus" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="sleeve_vg" label="Very Good" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="sleeve_g" label="Good" onChange={handleCheckboxSort}/>
+                        <Checkbox size="xs" value="sleeve_f" label="Fair" onChange={handleCheckboxSort}/>
                       </Group>
-                      </Checkbox.Group>
                   </Grid.Col>
                   <Grid.Col>
                     <Tooltip color="grey" label="Fire it up!" position="bottom"
@@ -528,8 +618,11 @@ const App = () => {
                 <Loader size="xl" variant="oval" />
               </Center>
               </>
+            ) : ( sortedList.length <= 1 && !checkboxesUsed ? (
+              <List list={filteredVinyls} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
             ) : (
-              <List list={filteredVinyls} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} />
+              <List list={sortedList} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+            )
             )}
           </div>
 
@@ -562,15 +655,15 @@ const SearchForm: React.FC<SearchFormProps> = ({
 
 const SORTS = {
   NONE: (list: Listing[]) => list,
-  TITLE_ASC: (list: Listing[]) => sortBy(list, 'title'),
-  TITLE_DESC: (list: Listing[]) => sortBy(list, 'title').reverse(),
-  ARTIST_ASC: (list: Listing[]) => sortBy(list, 'artist'),
-  ARTISDT_DESC: (list: Listing[]) => sortBy(list, 'artist').reverse(),
+  TITLE_ASC: (list: Listing[]) => sortBy(list, 'release.title'),
+  TITLE_DESC: (list: Listing[]) => sortBy(list, 'release.title').reverse(),
+  ARTIST_ASC: (list: Listing[]) => sortBy(list, 'release.artist'),
+  ARTIST_DESC: (list: Listing[]) => sortBy(list, 'release.artist').reverse(),
   PRICE_ASC: (list: Listing[]) => sortBy(list, 'price.value'),
   PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
 }
 
-const List: React.FC<ListProps> = ({ list, page, onRemoveItem, onPageSelect }) => {
+const List: React.FC<ListProps> = ({ list, page, onRemoveItem, onPageSelect, onPagesPerPage }) => {
 
 const [sort, setSort] = React.useState('NONE');
 
@@ -578,6 +671,8 @@ const handleSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
   console.log(event.target.value);
   setSort(event.target.value);
 };
+
+
 const sortFunction = SORTS[sort as keyof typeof SORTS];
 const sortedList: Listing[] = sortFunction(list);
 
@@ -599,7 +694,23 @@ return (
                 })}
               >
               <Grid>
-              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
+              <Grid.Col span={2}>
+                <Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text>
+              </Grid.Col>
+              <Grid.Col span={2}>
+              <Center>
+                  <Text fz="xs" c="dimmed" ta="left">Items per Page</Text>&nbsp;
+                  <select name="items-per-page" id="inline-page-selector" onChange={onPagesPerPage}>
+                      <option value="50">Items per Page</option>
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                  </select>   
+              </Center>
+                  </Grid.Col>
               <Grid.Col span={4}>
                 <Center>
                 <Button.Group>
@@ -680,18 +791,21 @@ return (
                       </Tooltip>
                     )}
                 </Button.Group> 
-                </Center>                       
+                </Center>
+                <Center>
+                <select name="filter" id="inline-filter" onChange={handleSort}>
+                  <option value="NONE">Sort</option>
+                  <option value="PRICE_ASC">Price Ascending</option>
+                  <option value="PRICE_DESC">Price Descending</option>
+                  <option value="TITLE_ASC">Title Ascending</option>
+                  <option value="TITLE_DESC">Title Descending</option>
+                  <option value="ARTIST_ASC">Artist Ascending</option>
+                  <option value="ARTIST_DESC">Artist Descending</option>
+              </select>           
+              </Center>            
               </Grid.Col>
               <Grid.Col span={2}>
-              <select name="filter" id="inline-filter" onChange={handleSort}>
-                <option value="NONE">Sort</option>
-                <option value="PRICE_ASC">Price Ascending</option>
-                <option value="PRICE_DESC">Price Descending</option>
-                <option value="TITLE_ASC">Title Ascending</option>
-                <option value="TITLE_DESC">Title Descending</option>
-                <option value="ARTIST_ASC">Artist Ascending</option>
-                <option value="ARTIST_DESC">Artist Descending</option>
-              </select>
+
               </Grid.Col>
               <Grid.Col span={2}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
             </Grid>
@@ -894,7 +1008,7 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
   const images = []
   for(var i = 0; i < item.release.images.length; i++)
     { 
-      if(i > 0)
+      if(i > 5)
         break;
       images.push(item.release.images[i].resource_url);
     }
