@@ -849,7 +849,7 @@ return (
             </SimpleGrid>
             <Grid>
               <Grid.Col span="content"><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
-              <Grid.Col span="content">
+              <Grid.Col span={9}>
               <Center>
                 <Button.Group>
                     {page.urls.first === undefined ? (
