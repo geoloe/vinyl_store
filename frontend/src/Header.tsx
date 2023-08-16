@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { ActionIcon, createStyles, Header, Container, Group, Burger, rem, Center } from '@mantine/core';
+import { Box, ActionIcon, createStyles, Header, Container, Group, Burger, rem, Center, SegmentedControlProps } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { MantineLogo } from '@mantine/ds';
-import { IconVinyl } from '@tabler/icons-react';
+import { IconVinyl, IconSun, IconMoon } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -89,3 +89,4 @@ export function HeaderSimple({ links }: HeaderSimpleProps) {
     </Header>
   );
 }
+

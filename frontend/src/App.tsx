@@ -1,4 +1,5 @@
 import { ThemeProvider } from './ThemeProvider';
+import { UserInfoIcons } from './UserInfos';
 //import { Welcome } from './Welcome/Welcome';
 import * as React from 'react';
 import axios from 'axios';
@@ -6,7 +7,7 @@ import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { NumberInput, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
+import { Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
@@ -502,6 +503,10 @@ const App = () => {
     <>
     <ThemeProvider>
     <HeaderSimple links={options}></HeaderSimple>
+    <UserInfoIcons 
+    avatar="https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg" name={'Julian Eggers'} title={'Music Entrepeneur'} phone={'https://www.discogs.com/user/ssrl4000'} email={'https://api.discogs.com/users/ssrl4000'}></UserInfoIcons>
+
+
     <HeroImageRight></HeroImageRight>
       <Center maw={400} h={100} mx="auto">
         <SearchForm 
@@ -512,14 +517,6 @@ const App = () => {
         </SearchForm>
       </Center>
       <Grid >
-        <Grid.Col span={2}>
-        <SimpleGrid  cols={1}
-                  spacing="lg"
-                  breakpoints={[
-                    { maxWidth: 'md', cols: 1, spacing: 'md' },
-                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
-                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
-                  ]}>
 
                 <Box
                 sx={(theme) => ({
@@ -534,17 +531,19 @@ const App = () => {
                   },
                 })}
               >
-                <SimpleGrid  cols={1}
+
+                  <SimpleGrid  cols={1}
                   spacing="lg"
                   breakpoints={[
-                    { maxWidth: 'md', cols: 2, spacing: 'md' },
-                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
+                    { maxWidth: 'md', cols: 3, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 2, spacing: 'sm' },
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}>
-                <Grid>
-                  <Grid.Col span={6}>
-                    <Group >
-                        <Text fw={700}>Filter Options</Text>
+                  <Grid.Col span="content">
+                      <Text align='center' fw={800}>Filter Options</Text>
+
+                      <Text align='left'>Format Information</Text>                                            
+                      <Group >
                       <Checkbox
                           label="Vinyl"
                           size="xs"
@@ -572,7 +571,7 @@ const App = () => {
                       </Group>
                       <br></br>
                       <br></br>  
-                      <Text>Media Condition</Text>                        
+                      <Text align='left'>Media Condition</Text>                        
                       <Group>
                         <Checkbox size="xs" value="media_m" label="Mint" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="media_nm" label="Near Mint" onChange={handleCheckboxSort}/>
@@ -583,7 +582,7 @@ const App = () => {
                       </Group>
                       <br></br>
                       <br></br>
-                      <Text>Sleeve Condition</Text>  
+                      <Text align='left'>Sleeve Condition</Text>  
                       <Group>
                         <Checkbox size="xs" value="sleeve_m" label="Mint" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="sleeve_nm" label="Near Mint" onChange={handleCheckboxSort}/>
@@ -592,22 +591,33 @@ const App = () => {
                         <Checkbox size="xs" value="sleeve_g" label="Good" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="sleeve_f" label="Fair" onChange={handleCheckboxSort}/>
                       </Group>
+                      <br></br>
+                      <Text align='left'>Year</Text>
+                      <Box maw={400} mx="auto">
+                      <Text align="left" fz="xs" ta="left">From:</Text>
+                      <Slider 
+                              defaultValue={1950}
+                              min={1900}
+                              max={2023}
+                              label={(value) => `${value}` } />
+                      <Text align="left" fz="xs" ta="left">To:</Text>
+                      <Slider 
+                              defaultValue={2023}
+                              min={1900}
+                              max={2023}
+                              label={(value) => `${value}` } />
+                      </Box>
+                    <Center>
+                      <Tooltip color="grey" label="Let's go!" position="bottom"      
+                          withArrow
+                          arrowPosition="center">
+                        <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}><IconFilterSearch/></Button> 
+                      </Tooltip>
+                    </Center>
                   </Grid.Col>
-                  <Grid.Col>
-                    <Tooltip color="grey" label="Fire it up!" position="bottom"
-      withArrow
-      arrowPosition="center">
-                      <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}><IconFilterSearch/></Button> 
-                    </Tooltip> 
-                  </Grid.Col>
-                </Grid>  
-
-                  </SimpleGrid>    
+                  </SimpleGrid>  
               </Box>
-
-        </SimpleGrid> 
-        </Grid.Col> 
-        <Grid.Col span={10}>
+        <Grid.Col span="auto">
           <div>
 
             {vinyls.isError && <p>Something went wrong... </p>}
@@ -694,23 +704,9 @@ return (
                 })}
               >
               <Grid>
-              <Grid.Col span={2}>
+              <Grid.Col span={4}>
                 <Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text>
               </Grid.Col>
-              <Grid.Col span={2}>
-              <Center>
-                  <Text fz="xs" c="dimmed" ta="left">Items per Page</Text>&nbsp;
-                  <select name="items-per-page" id="inline-page-selector" onChange={onPagesPerPage}>
-                      <option value="50">Items per Page</option>
-                      <option value="5">5</option>
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                      <option value="75">75</option>
-                      <option value="100">100</option>
-                  </select>   
-              </Center>
-                  </Grid.Col>
               <Grid.Col span={4}>
                 <Center>
                 <Button.Group>
@@ -793,8 +789,9 @@ return (
                 </Button.Group> 
                 </Center>
                 <Center>
+                <Text fz="xs" c="dimmed" ta="left">Sort Items</Text>&nbsp;
                 <select name="filter" id="inline-filter" onChange={handleSort}>
-                  <option value="NONE">Sort</option>
+                  <option value="NONE">--None--</option>
                   <option value="PRICE_ASC">Price Ascending</option>
                   <option value="PRICE_DESC">Price Descending</option>
                   <option value="TITLE_ASC">Title Ascending</option>
@@ -802,6 +799,18 @@ return (
                   <option value="ARTIST_ASC">Artist Ascending</option>
                   <option value="ARTIST_DESC">Artist Descending</option>
               </select>           
+              </Center>
+              <Center>
+              <Text fz="xs" c="dimmed" ta="left">Items per Page</Text>&nbsp;
+                  <select name="items-per-page" id="inline-page-selector" onChange={onPagesPerPage}>
+                      <option value="50">--Items--</option>
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="75">75</option>
+                      <option value="100">100</option>
+                  </select>   
               </Center>            
               </Grid.Col>
               <Grid.Col span={2}>
