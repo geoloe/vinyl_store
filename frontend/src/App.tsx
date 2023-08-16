@@ -2,10 +2,11 @@ import { ThemeProvider } from './ThemeProvider';
 //import { Welcome } from './Welcome/Welcome';
 import * as React from 'react';
 import axios from 'axios';
+import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
+import { Select, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
@@ -329,7 +330,7 @@ const App = () => {
       console.log('New API URL: ' + url);
       const result = await axios.get(url, {
         headers :
-         { 'Authorization': 'Discogs token=' + 'DeXxTVSPYvYUqQkGyXLpEgNdVGwerOZlQCyGaLEa' }
+         { 'Authorization': 'Discogs token=' + 'jeDlwAXluCUFPZPwjlTDCWznyXPCVwhfluYLSEpz' }
       })
       //Convert JSON to Vinyl and Pagination type
       const arr: Vinyl[] = Object.values(result.data);
@@ -449,17 +450,11 @@ const App = () => {
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}>
                 <Grid>
-                  <Grid.Col>
+                  <Grid.Col span={6}>
                     <Group >
-                      <Center>
                         <Text fw={700}>Filter Options</Text>
-                      </Center>
                       <Checkbox
-                          label="Sort by Title Ascending"
-                          size="xs"
-                      />
-                      <Checkbox
-                          label="Sort by Title Descending"
+                          label="New Stuff"
                           size="xs"
                       />
                       <Checkbox
@@ -467,10 +462,46 @@ const App = () => {
                           size="xs"
                       />
                       <Checkbox
-                          label="New Stuff"
+                          label="Vinyl"
+                          size="xs"
+                      />
+                      <Checkbox
+                          label="Not Vinyl"
                           size="xs"
                       />  
                       </Group>
+                      <br></br>
+                      <Checkbox.Group
+                          defaultValue={['media_condition']}
+                          label="Media Condition"
+                          size='xs'
+                        >
+                      <br></br>                          
+                      <Group>
+                        <Checkbox size="xs" value="mint" label="Mint" />
+                        <Checkbox size="xs" value="near mint" label="Near Mint" />
+                        <Checkbox size="xs" value="very good plus" label="Very Good Plus" />
+                        <Checkbox size="xs" value="very good" label="Very Good" />
+                        <Checkbox size="xs" value="good" label="Good" />
+                        <Checkbox size="xs" value="fair" label="Fair" />
+                      </Group>
+                      </Checkbox.Group>
+                      <br></br>
+                      <Checkbox.Group
+                          defaultValue={['sleeve_condition']}
+                          label="Sleeve Condition"
+                          size='xs'
+                        >
+                      <br></br>
+                      <Group>
+                        <Checkbox size="xs" value="mint" label="Mint" />
+                        <Checkbox size="xs" value="near mint" label="Near Mint" />
+                        <Checkbox size="xs" value="very good plus" label="Very Good Plus" />
+                        <Checkbox size="xs" value="very good" label="Very Good" />
+                        <Checkbox size="xs" value="good" label="Good" />
+                        <Checkbox size="xs" value="fair" label="Fair" />
+                      </Group>
+                      </Checkbox.Group>
                   </Grid.Col>
                   <Grid.Col>
                     <Tooltip color="grey" label="Fire it up!" position="bottom"
@@ -529,7 +560,26 @@ const SearchForm: React.FC<SearchFormProps> = ({
   </form>
 );
 
+const SORTS = {
+  NONE: (list: Listing[]) => list,
+  TITLE_ASC: (list: Listing[]) => sortBy(list, 'title'),
+  TITLE_DESC: (list: Listing[]) => sortBy(list, 'title').reverse(),
+  ARTIST_ASC: (list: Listing[]) => sortBy(list, 'artist'),
+  ARTISDT_DESC: (list: Listing[]) => sortBy(list, 'artist').reverse(),
+  PRICE_ASC: (list: Listing[]) => sortBy(list, 'price.value'),
+  PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
+}
+
 const List: React.FC<ListProps> = ({ list, page, onRemoveItem, onPageSelect }) => {
+
+const [sort, setSort] = React.useState('NONE');
+
+const handleSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  console.log(event.target.value);
+  setSort(event.target.value);
+};
+const sortFunction = SORTS[sort as keyof typeof SORTS];
+const sortedList: Listing[] = sortFunction(list);
 
 return (
   <>
@@ -632,7 +682,18 @@ return (
                 </Button.Group> 
                 </Center>                       
               </Grid.Col>
-              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
+              <Grid.Col span={2}>
+              <select name="filter" id="inline-filter" onChange={handleSort}>
+                <option value="NONE">Sort</option>
+                <option value="PRICE_ASC">Price Ascending</option>
+                <option value="PRICE_DESC">Price Descending</option>
+                <option value="TITLE_ASC">Title Ascending</option>
+                <option value="TITLE_DESC">Title Descending</option>
+                <option value="ARTIST_ASC">Artist Ascending</option>
+                <option value="ARTIST_DESC">Artist Descending</option>
+              </select>
+              </Grid.Col>
+              <Grid.Col span={2}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
             </Grid>
             <SimpleGrid 
               cols={4}
@@ -643,7 +704,7 @@ return (
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}
               >
-            {list.map((item, index) => (
+            {sortedList.map((item, index) => (
               <>
                 <div> 
                   <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem}>
@@ -778,7 +839,7 @@ const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem
 }): JSX.Element => {
 
   const current_date = new Date(item.posted);
-  console.log(current_date);
+  //console.log(current_date);
   const date_ref = new Date(2023, 4, 15);
   let new_record = true;
 
