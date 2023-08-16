@@ -90,11 +90,10 @@ export function HeroImageRight() {
               >
                 Jules Vinyls
               </Text>{' '}
-              where vinyls are the chepeast and best.
+              where vinyls are the cheapest and best.
             </Title>
 
-            <Text className={classes.description} mt={30}>
-              Welcome to best Vinyl shop in Weimar! 
+            <Text className={classes.description} mt={30}> 
               Don't miss anything.
             </Text>
 

@@ -1,5 +1,6 @@
 import { ThemeProvider } from './ThemeProvider';
 import { UserInfoIcons } from './UserInfos';
+import { FooterSocial } from './Footer';
 //import { Welcome } from './Welcome/Welcome';
 import * as React from 'react';
 import axios from 'axios';
@@ -7,7 +8,7 @@ import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Title, Pagination, Tooltip } from '@mantine/core';
+import { Rating, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
@@ -314,7 +315,6 @@ const App = () => {
     '50'
   )
 
-
   const [url, setUrl] = React.useState(
     `${API_ENDPOINT}${itemsPerPage}`
   );
@@ -394,7 +394,6 @@ const App = () => {
     const button: HTMLButtonElement = event.currentTarget;
 
     setUrl(`${button.value}`);
-    console.log(button.value);
   }
 
   const handleRemoveVinyl = (item: Listing) => {
@@ -495,16 +494,26 @@ const App = () => {
 
   //Define Header Nav Items
   const options = [
-    { link: 'Login', label: 'Log In' },
-     { link: 'Register', label: 'Register' }
+    { link: "What's new?" , label: "What's new?" },
+    { link: 'Contact', label: 'Contact' },
+    {link: 'Jobs', label: 'Jobs' },
    ]
+
+  const tabs: string[] = ["About"]
+
+   const user = { name: 'Julian Eggers', image: 'https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg' }
 
   return (
     <>
     <ThemeProvider>
-    <HeaderSimple links={options}></HeaderSimple>
+    <HeaderSimple links={options} user={user} tabs={tabs}></HeaderSimple>
     <UserInfoIcons 
-    avatar="https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg" name={'Julian Eggers'} title={'Music Entrepeneur'} phone={'https://www.discogs.com/user/ssrl4000'} email={'https://api.discogs.com/users/ssrl4000'}></UserInfoIcons>
+    avatar="https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg" 
+    name={'Julian Eggers'} 
+    title={'Music Entrepeneur'} 
+    phone={'https://www.discogs.com/user/ssrl4000'} 
+    email={'https://api.discogs.com/users/ssrl4000'}>
+    </UserInfoIcons>
 
 
     <HeroImageRight></HeroImageRight>
@@ -518,7 +527,7 @@ const App = () => {
       </Center>
       <Grid >
 
-                <Box
+            <Box
                 sx={(theme) => ({
                   backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
                   textAlign: 'center',
@@ -535,8 +544,8 @@ const App = () => {
                   <SimpleGrid  cols={1}
                   spacing="lg"
                   breakpoints={[
-                    { maxWidth: 'md', cols: 3, spacing: 'md' },
-                    { maxWidth: 'sm', cols: 2, spacing: 'sm' },
+                    { maxWidth: 'md', cols: 2, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 1, spacing: 'sm' },
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}>
                   <Grid.Col span="content">
@@ -617,10 +626,11 @@ const App = () => {
                   </Grid.Col>
                   </SimpleGrid>  
               </Box>
+
         <Grid.Col span="auto">
           <div>
 
-            {vinyls.isError && <p>Something went wrong... </p>}
+            {vinyls.isError && <p>Oops! Something went wrong... </p>}
 
             {vinyls.isLoading ? (
               <>
@@ -636,8 +646,9 @@ const App = () => {
             )}
           </div>
 
-        </Grid.Col> 
+        </Grid.Col>
       </Grid>
+      <FooterSocial></FooterSocial>
     </ThemeProvider>
     </>
   );
@@ -704,10 +715,10 @@ return (
                 })}
               >
               <Grid>
-              <Grid.Col span={4}>
+              <Grid.Col span="content">
                 <Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text>
               </Grid.Col>
-              <Grid.Col span={4}>
+              <Grid.Col span={9}>
                 <Center>
                 <Button.Group>
                     {page.urls.first === undefined ? (
@@ -813,11 +824,8 @@ return (
                   </select>   
               </Center>            
               </Grid.Col>
-              <Grid.Col span={2}>
-
-              </Grid.Col>
-              <Grid.Col span={2}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
-            </Grid>
+              <Grid.Col span="content"><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
+              </Grid>
             <SimpleGrid 
               cols={4}
                   spacing="lg"
@@ -840,8 +848,8 @@ return (
                  
             </SimpleGrid>
             <Grid>
-              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
-              <Grid.Col span={4}>
+              <Grid.Col span="content"><Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text></Grid.Col>
+              <Grid.Col span="content">
               <Center>
                 <Button.Group>
                     {page.urls.first === undefined ? (
@@ -931,7 +939,7 @@ return (
                 </Button.Group> 
               </Center>
               </Grid.Col>
-              <Grid.Col span={4}><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
+              <Grid.Col span="content"><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
             </Grid>
             </Box>
             

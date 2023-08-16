@@ -1,4 +1,4 @@
-import { createStyles, Avatar, Text, Group } from '@mantine/core';
+import { Rating, createStyles, Avatar, Text, Group } from '@mantine/core';
 import { IconPhoneCall, IconAt } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
@@ -17,6 +17,7 @@ interface UserInfoIconsProps {
   title: string;
   phone: string;
   email: string;
+  children: React.ReactNode;
 }
 
 export function UserInfoIcons({ avatar, name, title, phone, email }: UserInfoIconsProps) {
@@ -37,14 +38,17 @@ export function UserInfoIcons({ avatar, name, title, phone, email }: UserInfoIco
           <Group noWrap spacing={10} mt={3}>
             <IconAt stroke={1.5} size="1rem" className={classes.icon} />
             <Text fz="xs" c="dimmed">
-              <a href={email}>{email}</a>
+              <a href={email}>API Stuff</a>
             </Text>
           </Group>
 
           <Group noWrap spacing={10} mt={5}>
             <IconPhoneCall stroke={1.5} size="1rem" className={classes.icon} />
             <Text fz="xs" c="dimmed">
-                <a href={phone}>{phone}</a>
+                <a href={phone}>Find me on Discogs</a>
+            </Text>
+            <Text fz="xs" c="dimmed">
+            <Rating value={5} fractions={2} readOnly />
             </Text>
           </Group>
         </div>
