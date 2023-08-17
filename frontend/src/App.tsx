@@ -1,17 +1,17 @@
 import { ThemeProvider } from './ThemeProvider';
 import { UserInfoIcons } from './UserInfos';
 import { FooterSocial } from './Footer';
-//import { Welcome } from './Welcome/Welcome';
+import { useWindowScroll } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Rating, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip } from '@mantine/core';
+import { Affix, Transition, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
-import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch} from '@tabler/icons-react';
+import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
 
 /*Object Defs*/
 
@@ -318,6 +318,9 @@ const App = () => {
   const [url, setUrl] = React.useState(
     `${API_ENDPOINT}${itemsPerPage}`
   );
+
+  //Scroll to top
+  const [scroll, scrollTo] = useWindowScroll();
 
   /** REDUCER HANDLES USE STATES */
   const [vinyls, dispatchVinyls] = React.useReducer(
@@ -649,6 +652,20 @@ const App = () => {
         </Grid.Col>
       </Grid>
       <FooterSocial></FooterSocial>
+      <Affix position={{ bottom: rem(20), right: rem(20) }}>
+        <Transition transition="slide-up" mounted={scroll.y > 0}>
+          {(transitionStyles) => (
+            <Button
+              leftIcon={<IconArrowUp size="1rem" />}
+              style={transitionStyles}
+              variant="gradient" gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+              onClick={() => scrollTo({ y: 0 })}
+            >
+              Scroll to top
+            </Button>
+          )}
+        </Transition>
+      </Affix>
     </ThemeProvider>
     </>
   );
