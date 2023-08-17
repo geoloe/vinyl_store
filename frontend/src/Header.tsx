@@ -153,12 +153,12 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Item
                 icon={<IconHeart size="0.9rem" color={theme.colors.red[6]} stroke={1.5} />}
               >
-                Liked posts
+                Favorite Vinyls
               </Menu.Item>
               <Menu.Item
                 icon={<IconStar size="0.9rem" color={theme.colors.yellow[6]} stroke={1.5} />}
               >
-                Saved posts
+                Wantlist
               </Menu.Item>
               <Menu.Item
                 icon={<IconMessage size="0.9rem" color={theme.colors.blue[6]} stroke={1.5} />}

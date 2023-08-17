@@ -8,13 +8,16 @@ import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Affix, Transition, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip } from '@mantine/core';
+import { Affix, Transition, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
 
 /*Object Defs*/
 
+const discogs_api_token: string = "placeholder";
+
+//Steam Objects
 type Vinyl = {
   pagination: Pagination;
   listings:   Listing[];
@@ -179,6 +182,7 @@ type Vinyls = Vinyl["listings"];
 type ListProps = {
   list: Vinyls;
   page: Pagination;
+  range: [number, number];
   onRemoveItem: (item: Listing) => void;
   onPageSelect: React.MouseEventHandler<HTMLButtonElement>
   onPagesPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
@@ -313,9 +317,9 @@ const App = () => {
     );
   const [itemsPerPage, setItemsPerPage] = React.useState(
     '50'
-  )
+  );
 
-  const [url, setUrl] = React.useState(
+  const [urlDiscogs, setUrlDiscogs] = React.useState(
     `${API_ENDPOINT}${itemsPerPage}`
   );
 
@@ -335,10 +339,10 @@ const App = () => {
     });
     
     try {
-      console.log('New API URL: ' + url);
-      const result = await axios.get(url, {
+      console.log('New API URL: ' + urlDiscogs);
+      const result = await axios.get(urlDiscogs, {
         headers :
-         { 'Authorization': 'Discogs token=' + 'jeDlwAXluCUFPZPwjlTDCWznyXPCVwhfluYLSEpz' }
+         { 'Authorization': 'Discogs token=' + discogs_api_token }
       })
       //Convert JSON to Vinyl and Pagination type
       const arr: Vinyl[] = Object.values(result.data);
@@ -353,7 +357,7 @@ const App = () => {
     } catch { 
       dispatchVinyls({type: 'VINYLS_FETCH_FAILURE'});
     }
-  }, [url]);
+  }, [urlDiscogs]);
 
   const filteredVinyls = vinyls.data.filter(function (vinyl){   
    if (vinyl.release !== undefined){
@@ -365,7 +369,7 @@ const App = () => {
    }
   });
 
-  //useEffect for API Fetch
+  //useEffect for API Discogs Fetch
   React.useEffect(() => {
     handleFetchVinyls();
     }, [handleFetchVinyls]);
@@ -385,7 +389,7 @@ const App = () => {
   const handleSearchSubmit = (
     event: React.ChangeEvent<HTMLFormElement>
     ) => {
-    setUrl(`${API_ENDPOINT}${searchTerm}`);
+    setUrlDiscogs(`${API_ENDPOINT}${searchTerm}`);
     event.preventDefault();
   }
 
@@ -396,7 +400,7 @@ const App = () => {
 
     const button: HTMLButtonElement = event.currentTarget;
 
-    setUrl(`${button.value}`);
+    setUrlDiscogs(`${button.value}`);
   }
 
   const handleRemoveVinyl = (item: Listing) => {
@@ -487,11 +491,18 @@ const App = () => {
     }));
   }
 
+  const [slider, setSlider] = React.useState<[number, number]>([1950, 2023]);
+
+    //useEffect for slider values Fetch
+  //React.useEffect(() => {
+  //  console.log(slider);
+  //}, [slider]);
+
   const handleItemsPerPage = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
     setItemsPerPage(event.target.value);
-    setUrl(`${API_ENDPOINT}${event.target.value}`);
+    setUrlDiscogs(`${API_ENDPOINT}${event.target.value}`);
   }
   /*End Event Handlers*/
 
@@ -606,18 +617,14 @@ const App = () => {
                       <br></br>
                       <Text align='left'>Year</Text>
                       <Box maw={400} mx="auto">
-                      <Text align="left" fz="xs" ta="left">From:</Text>
-                      <Slider 
-                              defaultValue={1950}
+                      <Text align="left" fz="xs" ta="left">From - To</Text>
+                      <RangeSlider 
+                              value={slider}
                               min={1900}
                               max={2023}
-                              label={(value) => `${value}` } />
-                      <Text align="left" fz="xs" ta="left">To:</Text>
-                      <Slider 
-                              defaultValue={2023}
-                              min={1900}
-                              max={2023}
-                              label={(value) => `${value}` } />
+                              label={(value) => `${value}` } 
+                              onChangeEnd={setSlider}/>
+                      <br></br>
                       </Box>
                     <Center>
                       <Tooltip color="grey" label="Let's go!" position="bottom"      
@@ -642,9 +649,9 @@ const App = () => {
               </Center>
               </>
             ) : ( sortedList.length <= 1 && !checkboxesUsed ? (
-              <List list={filteredVinyls} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+              <List list={filteredVinyls} range={slider} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
             ) : (
-              <List list={sortedList} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+              <List list={sortedList} range={slider} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
             )
             )}
           </div>
@@ -701,7 +708,7 @@ const SORTS = {
   PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
 }
 
-const List: React.FC<ListProps> = ({ list, page, onRemoveItem, onPageSelect, onPagesPerPage }) => {
+const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage }) => {
 
 const [sort, setSort] = React.useState('NONE');
 
@@ -713,10 +720,17 @@ const handleSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
 
 const sortFunction = SORTS[sort as keyof typeof SORTS];
 const sortedList: Listing[] = sortFunction(list);
+const sortedListWithYear: Listing[] = [];
+//handle year filter
+for(let i:number = 0; i < sortedList.length; i++){
+  if(sortedList[i].release.year >= range[0] && sortedList[i].release.year <= range[1]){
+    sortedListWithYear.push(sortedList[i]);
+  }
+}
 
 return (
   <>
-    {list.length > 0 ? (
+    {sortedListWithYear.length > 0 ? (
             <>
             <Box
                 sx={(theme) => ({
@@ -852,16 +866,15 @@ return (
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}
               >
-            {sortedList.map((item, index) => (
+            {sortedListWithYear.map((item, index) => (
               <>
-                <div> 
+                <div key={item.release.id}> 
                   <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem}>
-                    <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
+                    <DeleteButton key={index} name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
                   </Item>
                 </div>
               </>
-          ))}          
-              
+            ))}  
                  
             </SimpleGrid>
             <Grid>

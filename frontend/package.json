@@ -34,6 +34,7 @@
     "@tiptap/react": "^2.0.4",
     "@tiptap/starter-kit": "^2.0.4",
     "axios": "^1.4.0",
+    "cors": "^2.8.5",
     "dayjs": "^1.11.9",
     "embla-carousel-react": "^8.0.0-rc11",
     "lodash": "^4.17.21",
