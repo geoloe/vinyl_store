@@ -1,11 +1,12 @@
 import { UserInfoIcons } from './UserInfos';
-import { useWindowScroll, useDisclosure } from '@mantine/hooks';
+import { FooterSocial } from './Footer';
+import { useWindowScroll } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash';
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { AspectRatio, Modal, Notification, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
+import { Affix, Transition, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
@@ -13,7 +14,7 @@ import { Link } from 'react-router-dom';
 
 /*Object Defs*/
 
-const discogs_api_token: string = ".";
+const discogs_api_token: string = "placeholder";
 
 //Steam Objects
 export type Vinyl = {
@@ -509,6 +510,7 @@ const App = () => {
     setItemsPerPage(event.target.value);
     setUrlDiscogs(`${API_ENDPOINT}${event.target.value}`);
   }
+  /*End Event Handlers*/
 
   const handleNotification = (
     event: React.MouseEventHandler<HTMLButtonElement>
@@ -681,32 +683,20 @@ const App = () => {
         </Grid.Col>
       </Grid>
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
-            <Transition transition="slide-up" mounted={scroll.y > 0}>
-            {(transitionStyles) => (
-                <Button
-                leftIcon={<IconArrowUp size="1rem" />}
-                style={transitionStyles}
-                variant="gradient" gradient={{ from: 'teal', to: 'blue', deg: 60 }}
-                onClick={() => scrollTo({ y: 0 })}
-                >
-                Scroll to top
-                </Button>
-            )}
-            </Transition>
-        </Affix>
-        {notification ? (
-        <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
-        <Notification title="Bummer :(" onClose={handleNotification}>
-            Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
-        </Notification>
-        </Affix>
-        ) : (
-            <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification' hidden>
-            <Notification title="Default notification" >
-            This is default notification with title and body
-            </Notification>
-            </Affix>
-        )}
+        <Transition transition="slide-up" mounted={scroll.y > 0}>
+          {(transitionStyles) => (
+            <Button
+              leftIcon={<IconArrowUp size="1rem" />}
+              style={transitionStyles}
+              variant="gradient" gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+              onClick={() => scrollTo({ y: 0 })}
+            >
+              Scroll to top
+            </Button>
+          )}
+        </Transition>
+      </Affix>
+    </ThemeProvider>
     </>
   );
 };
@@ -741,7 +731,7 @@ const SORTS = {
   PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
 }
 
-export const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage, handleNotification }) => {
+const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage }) => {
 
 const [sort, setSort] = React.useState('NONE');
 
@@ -1029,7 +1019,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeIt
     </>
   );
 
-export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, handleNotification
+const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem
 }): JSX.Element => {
 
   const current_date = new Date(item.posted);
@@ -1170,14 +1160,8 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
           {item.original_price.formatted}
           </Text>
         </div>
-        {item.status === Status.Sold ? (
-        <Button radius="md" disabled >Buy now</Button>
-        ) : (
-          <>
-          <Link to={`details/${item.release.id}`}>Details</Link>
-          <Button radius="md" onClick={handleNotification} >Add to cart</Button>
-          </>
-        )}
+        <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
+        <Button radius="md">Buy now</Button>
       </Group>
     </Card>
   );
