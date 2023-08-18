@@ -1,6 +1,7 @@
 import { ThemeProvider } from './ThemeProvider';
 import { UserInfoIcons } from './UserInfos';
 import { FooterSocial } from './Footer';
+import { useForm } from '@mantine/form';
 import { useWindowScroll, useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
@@ -725,7 +726,7 @@ const App = () => {
       </Affix>
       {notification ? (
       <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
-      <Notification title="Bummer :(" >
+      <Notification title="Bummer :(" onClose={handleNotification}>
         Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
       </Notification>
       </Affix>
