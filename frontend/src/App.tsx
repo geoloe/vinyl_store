@@ -15,7 +15,7 @@ import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, 
 
 /*Object Defs*/
 
-const discogs_api_token: string = "wZrJxAmLPfHFokqKGUNkFhEXwnHKGFsyGAIYVbsh";
+const discogs_api_token: string = "placeholder";
 
 //Steam Objects
 type Vinyl = {
@@ -548,7 +548,8 @@ const App = () => {
 
   const tabs: string[] = ["About"]
 
-   const user = { name: 'Julian Eggers', image: 'https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg' }
+   const user = { name: 'Georg Löffler', 
+   image: 'https://avatars.steamstatic.com/a55b513e39410f2ac350958b127fcedbba830e5a_full.jpg' }
 
   return (
     <>
