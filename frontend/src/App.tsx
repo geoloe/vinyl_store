@@ -529,6 +529,17 @@ const App = () => {
 
   /*End Event Handlers*/
 
+  //Define Header Nav Items
+  const options = [
+    { link: "What's new?" , label: "What's new?" },
+    { link: 'Contact', label: 'Contact' },
+    {link: 'Jobs', label: 'Jobs' },
+   ]
+
+  const tabs: string[] = ["About"]
+
+   const user = { name: 'Julian Eggers', image: 'https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg' }
+
   return (
     <>
     <UserInfoIcons 
