@@ -1,6 +1,6 @@
 import { UserInfoIcons } from './UserInfos';
 import { FooterSocial } from './Footer';
-import { useWindowScroll } from '@mantine/hooks';
+import { useWindowScroll, useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash';
@@ -707,6 +707,19 @@ const App = () => {
           )}
         </Transition>
       </Affix>
+      {notification ? (
+      <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
+      <Notification title="Bummer :(" >
+        Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
+      </Notification>
+      </Affix>
+      ) : (
+        <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification' hidden>
+        <Notification title="Default notification" >
+          This is default notification with title and body
+        </Notification>
+        </Affix>
+      )}
     </ThemeProvider>
     </>
   );
