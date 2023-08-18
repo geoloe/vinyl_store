@@ -1,21 +1,21 @@
 import { ThemeProvider } from './ThemeProvider';
 import { UserInfoIcons } from './UserInfos';
 import { FooterSocial } from './Footer';
-import { useWindowScroll } from '@mantine/hooks';
+import { useWindowScroll, useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash';
 import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Affix, Transition, Slider, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
+import { Modal, Notification, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
 
 /*Object Defs*/
 
-const discogs_api_token: string = "placeholder";
+const discogs_api_token: string = "wZrJxAmLPfHFokqKGUNkFhEXwnHKGFsyGAIYVbsh";
 
 //Steam Objects
 type Vinyl = {
@@ -185,6 +185,7 @@ type ListProps = {
   range: [number, number];
   onRemoveItem: (item: Listing) => void;
   onPageSelect: React.MouseEventHandler<HTMLButtonElement>
+  handleNotification: React.MouseEventHandler<HTMLButtonElement>;
   onPagesPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
@@ -192,6 +193,7 @@ type ItemProps = {
   item: Listing;
   index: number;
   onRemoveItem: (item: Listing) => void;
+  handleNotification: React.MouseEventHandler<HTMLButtonElement>;
   children: React.ReactNode;
 }
 
@@ -200,6 +202,7 @@ type CarouselProps = {
   index: number;
   onRemoveItem: (item: Listing) => void;
   new_record: boolean;
+  handleNotification: React.MouseEventHandler<HTMLButtonElement>;
   children: React.ReactNode;
 }
 
@@ -315,6 +318,13 @@ const App = () => {
     'search',
     ''
     );
+
+  const [notification, setNotification] = React.useState(
+    false,
+  )
+
+  const [opened, { open, close }] = useDisclosure(false);
+
   const [itemsPerPage, setItemsPerPage] = React.useState(
     '50'
   );
@@ -504,6 +514,29 @@ const App = () => {
     setItemsPerPage(event.target.value);
     setUrlDiscogs(`${API_ENDPOINT}${event.target.value}`);
   }
+
+  const handleNotification = (
+    event: React.MouseEventHandler<HTMLButtonElement>
+        ) => {
+    if(notification){
+      console.log("clicked via Notification");
+      setNotification(false);
+    }
+    else{
+      console.log("clicked via Buy Button");
+      setNotification(true);
+    }
+
+  }
+
+  const closeNotification = (
+
+  ) => {
+    console.log("Notification to be closed.")
+    setNotification(false);
+  }
+  
+
   /*End Event Handlers*/
 
   //Define Header Nav Items
@@ -615,7 +648,7 @@ const App = () => {
                         <Checkbox size="xs" value="sleeve_f" label="Fair" onChange={handleCheckboxSort}/>
                       </Group>
                       <br></br>
-                      <Text align='left'>Year</Text>
+                      <Text align='left'>Release Year</Text>
                       <Box maw={400} mx="auto">
                       <Text align="left" fz="xs" ta="left">From - To</Text>
                       <RangeSlider 
@@ -627,14 +660,30 @@ const App = () => {
                       <br></br>
                       </Box>
                     <Center>
-                      <Tooltip color="grey" label="Let's go!" position="bottom"      
+                      <Tooltip color="grey" label="More filter options" position="bottom"      
                           withArrow
                           arrowPosition="center">
-                        <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }}><IconFilterSearch/></Button> 
+                        <Button variant="gradient" size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }} onClick={open}><IconFilterSearch/></Button> 
                       </Tooltip>
                     </Center>
                   </Grid.Col>
-                  </SimpleGrid>  
+                  </SimpleGrid>
+                  <Modal size="md" opened={opened} onClose={close} title="More filters" centered>
+                  <MultiSelect
+                      data={['Rock', 'R&B', 'Soul', 'Jazz', 'Metal', 'Salsa Candela', 'Reggaeton', 'Rap', 'EDM']}
+                      label="Pick your genres"
+                      placeholder="Pick all that you like"
+                      transitionProps={{ duration: 150, transition: 'pop-top-left', timingFunction: 'ease' }}
+                    />
+                  <MultiSelect
+                      data={['Recently added', 'Most viewed', "Jule's favs"]}
+                      label="Miscellanous"
+                      placeholder="Miscellanous"
+                      transitionProps={{ duration: 150, transition: 'pop-top-left', timingFunction: 'ease' }}
+                    />
+                    <br></br>
+                  <Button variant="gradient" compact size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }} onClick={close}>Apply changes!</Button>                 
+                  </Modal>  
               </Box>
 
         <Grid.Col span="auto">
@@ -649,9 +698,9 @@ const App = () => {
               </Center>
               </>
             ) : ( sortedList.length <= 1 && !checkboxesUsed ? (
-              <List list={filteredVinyls} range={slider} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+              <List list={filteredVinyls} range={slider} page={vinyls.page} handleNotification={handleNotification} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
             ) : (
-              <List list={sortedList} range={slider} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+              <List list={sortedList} range={slider} page={vinyls.page} handleNotification={handleNotification} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
             )
             )}
           </div>
@@ -673,6 +722,19 @@ const App = () => {
           )}
         </Transition>
       </Affix>
+      {notification ? (
+      <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
+      <Notification title="Bummer :(" >
+        Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
+      </Notification>
+      </Affix>
+      ) : (
+        <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification' hidden>
+        <Notification title="Default notification" >
+          This is default notification with title and body
+        </Notification>
+        </Affix>
+      )}
     </ThemeProvider>
     </>
   );
@@ -708,7 +770,7 @@ const SORTS = {
   PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
 }
 
-const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage }) => {
+const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage, handleNotification }) => {
 
 const [sort, setSort] = React.useState('NONE');
 
@@ -869,7 +931,7 @@ return (
             {sortedListWithYear.map((item, index) => (
               <>
                 <div key={item.release.id}> 
-                  <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem}>
+                  <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem} handleNotification={handleNotification}>
                     <DeleteButton key={index} name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
                   </Item>
                 </div>
@@ -996,7 +1058,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeIt
     </>
   );
 
-const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem
+const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, handleNotification
 }): JSX.Element => {
 
   const current_date = new Date(item.posted);
@@ -1010,7 +1072,7 @@ const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem
 
 return (
     <>
-      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record}>
+      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} handleNotification={handleNotification}>
 
       </CarouselCard>
     </>
@@ -1048,7 +1110,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
-const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_record 
+const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_record, handleNotification 
 }): JSX.Element =>  {
   const { classes } = useStyles();
 
@@ -1126,7 +1188,7 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
           </Text>
         </div>
         <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
-        <Button radius="md">Buy now</Button>
+        <Button radius="md" onClick={handleNotification}>Buy now</Button>
       </Group>
     </Card>
   );
