@@ -1,7 +1,6 @@
 import { ThemeProvider } from './ThemeProvider';
 import { UserInfoIcons } from './UserInfos';
 import { FooterSocial } from './Footer';
-import { useForm } from '@mantine/form';
 import { useWindowScroll, useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
@@ -16,7 +15,7 @@ import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, 
 
 /*Object Defs*/
 
-const discogs_api_token: string = "placeholder";
+const discogs_api_token: string = "fVlXxrDsFQTCVTIBHELGyVtcSugtUyvpaJiDQFJh";
 
 //Steam Objects
 type Vinyl = {
@@ -327,7 +326,7 @@ const App = () => {
   const [opened, { open, close }] = useDisclosure(false);
 
   const [itemsPerPage, setItemsPerPage] = React.useState(
-    '50'
+    '10'
   );
 
   const [urlDiscogs, setUrlDiscogs] = React.useState(
@@ -909,7 +908,7 @@ return (
               <Center>
               <Text fz="xs" c="dimmed" ta="left">Items per Page</Text>&nbsp;
                   <select name="items-per-page" id="inline-page-selector" onChange={onPagesPerPage}>
-                      <option value="50">--Items--</option>
+                      <option value="10">--Items--</option>
                       <option value="5">5</option>
                       <option value="10">10</option>
                       <option value="25">25</option>
