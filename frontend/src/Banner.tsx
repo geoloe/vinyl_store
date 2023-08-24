@@ -1,4 +1,6 @@
-import { createStyles, Container, Title, Text, Button, rem } from '@mantine/core';
+import { createStyles, Container, Title, Text, Button, Group, rem, Modal, Box, TextInput, Checkbox } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { useForm } from '@mantine/form';
 
 const useStyles = createStyles((theme) => ({
   root: {
@@ -73,8 +75,20 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+
 export function HeroImageRight() {
   const { classes } = useStyles();
+  const [subscribeOpened, { open, close }] = useDisclosure(false);
+  const form = useForm({
+    initialValues: {
+      email: '',
+      termsOfService: false,
+    },
+  
+    validate: {
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+    },
+  });
   return (
     <div className={classes.root}>
       <Container size="lg">
@@ -103,9 +117,32 @@ export function HeroImageRight() {
               size="xl"
               className={classes.control}
               mt={40}
+              onClick={open}
             >
               Subscribe to our newsletter!
             </Button>
+            <Modal opened={subscribeOpened} onClose={close} title="Newsletter">
+                <Box maw={300} mx="auto">
+                  <form onSubmit={form.onSubmit((values) => console.log(values))}>
+                    <TextInput
+                      withAsterisk
+                      label="Email"
+                      placeholder="your@email.com"
+                      {...form.getInputProps('email')}
+                    />
+
+                    <Checkbox
+                      mt="md"
+                      label="I agree to sell my privacy"
+                      {...form.getInputProps('termsOfService', { type: 'checkbox' })}
+                    />
+
+                    <Group position="right" mt="md">
+                      <Button type="submit">Submit</Button>
+                    </Group>
+                  </form>
+                </Box>
+            </Modal>
           </div>
         </div>
       </Container>

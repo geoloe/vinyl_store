@@ -24,6 +24,7 @@ import {
   IconTrash,
   IconSwitchHorizontal,
   IconChevronDown,
+  IconShoppingCart
 } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
@@ -170,8 +171,8 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
                 Account settings
               </Menu.Item>
-              <Menu.Item icon={<IconSwitchHorizontal size="0.9rem" stroke={1.5} />}>
-                Change account
+              <Menu.Item icon={<IconShoppingCart size="0.9rem" stroke={1.5} />}>
+                Shopping Cart
               </Menu.Item>
               <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />}>Logout</Menu.Item>
 
