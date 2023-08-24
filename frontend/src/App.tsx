@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 
 /*Object Defs*/
 
-const discogs_api_token: string = "placeholder";
+const discogs_api_token: string = "fVlXxrDsFQTCVTIBHELGyVtcSugtUyvpaJiDQFJh";
 
 //Steam Objects
 export type Vinyl = {
