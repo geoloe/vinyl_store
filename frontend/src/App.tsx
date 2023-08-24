@@ -15,7 +15,8 @@ import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, 
 
 /*Object Defs*/
 
-const discogs_api_token: string = "placeholder";
+const discogs_api_token: string = "UBkXRLXJnruJmycAHVlslEHRoaqqEZoPPKcXeywV";
+
 
 //Steam Objects
 type Vinyl = {
@@ -49,6 +50,7 @@ enum Condition {
   GoodG = "Good (G)",
   GoodPlusG = "Good Plus (G+)",
   NearMintNMOrM = "Near Mint (NM or M-)",
+  Mint = "Mint (M)",
   VeryGoodPlusVG = "Very Good Plus (VG+)",
   VeryGoodVG = "Very Good (VG)",
 }
@@ -142,6 +144,7 @@ enum ShipsFrom {
 
 enum Status {
   ForSale = "For Sale",
+  Sold = "Sold"
 }
 
 type Pagination = {
@@ -359,7 +362,7 @@ const App = () => {
     }
   }, [urlDiscogs]);
 
-  const filteredVinyls = vinyls.data.filter(function (vinyl){   
+  let filteredVinyls = vinyls.data.filter(function (vinyl){   
    if (vinyl.release !== undefined){
     return vinyl.release.title.toLowerCase().includes(searchTerm.toLowerCase());
    }
@@ -1102,15 +1105,25 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
             {item.seller.stats.rating} {item.seller.stats.stars}
           </Text>
             <Group>
-              {new_record ? (
-              <Badge pl={0} size="lg" color="teal" radius="xl" leftSection={avatar}>
-                New!
-              </Badge>
-              ) :(
-              <Badge pl={0} size="lg" color="red" radius="xl" leftSection={avatar}>
-                On Sale!
-              </Badge>
+              { new_record ? (
+                  <Badge pl={0} size="lg" color="blue" radius="xl" leftSection={avatar}>
+                    New!
+                  </Badge>
+              ) : (
+                  <Badge pl={0} size="lg" color="grey" radius="xl" leftSection={avatar}>
+                    Reduced
+                  </Badge>
               )}
+              { item.status === Status.Sold ?
+                (
+                <Badge pl={0} size="lg" color="red" radius="xl" leftSection={avatar}>
+                  Sold!
+                </Badge>
+                ) : (
+                <Badge pl={0} size="lg" color="teal" radius="xl" leftSection={avatar}>
+                  On Sale!
+                </Badge>
+                )}
             </Group>
         </Group>
       </Group>
@@ -1125,8 +1138,11 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
           {item.original_price.formatted}
           </Text>
         </div>
-        <DeleteButton name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
-        <Button radius="md">Buy now</Button>
+        {item.status === Status.Sold ? (
+          <Button radius="md" disabled>Buy now</Button>
+        ) : (
+          <Button radius="md">Buy now</Button>
+        )}
       </Group>
     </Card>
   );
