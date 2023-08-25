@@ -1,29 +1,27 @@
-import { ThemeProvider } from './ThemeProvider';
 import { UserInfoIcons } from './UserInfos';
-import { FooterSocial } from './Footer';
 import { useWindowScroll, useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash';
-import { HeaderSimple } from './Header'
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { Modal, Notification, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
+import { AspectRatio, Modal, Notification, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
 import { IconStar } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 /*Object Defs*/
 
 const discogs_api_token: string = ".";
 
 //Steam Objects
-type Vinyl = {
+export type Vinyl = {
   pagination: Pagination;
   listings:   Listing[];
 }
 
-type Listing = {
+export type Listing = {
   id:                      number;
   resource_url:            string;
   uri:                     string;
@@ -54,7 +52,7 @@ enum Condition {
   VeryGoodVG = "Very Good (VG)",
 }
 
-type OriginalPrice = {
+export type OriginalPrice = {
   curr_abbr: Curr;
   curr_id:   number;
   formatted: string;
@@ -65,12 +63,12 @@ enum Curr {
   Eur = "EUR",
 }
 
-type Price = {
+export type Price = {
   value:    number;
   currency: Curr;
 }
 
-type Release = {
+export type Release = {
   thumbnail:      string;
   description:    string;
   images:         Image[];
@@ -85,7 +83,7 @@ type Release = {
   stats:          ReleaseStats;
 }
 
-type Image = {
+export type Image = {
   type:         Type;
   uri:          string;
   resource_url: string;
@@ -99,17 +97,17 @@ enum Type {
   Secondary = "secondary",
 }
 
-type ReleaseStats = {
+export type ReleaseStats = {
   community: Community;
   user:      Community;
 }
 
-type Community = {
+export type Community = {
   in_wantlist:   number;
   in_collection: number;
 }
 
-type Seller = {
+export type Seller = {
   id:              number;
   username:        Username;
   avatar_url:      string;
@@ -127,7 +125,7 @@ enum Payment {
   PayPalCommerce = "PayPal Commerce",
 }
 
-type SellerStats = {
+export type SellerStats = {
   rating: string;
   stars:  number;
   total:  number;
@@ -146,7 +144,7 @@ enum Status {
   Sold = "Sold"
 }
 
-type Pagination = {
+export type Pagination = {
   page:     number;
   pages:    number;
   per_page: number;
@@ -154,7 +152,7 @@ type Pagination = {
   urls:     Urls;
 }
 
-type Urls = {
+export type Urls = {
   first?: string;
   prev?: string;
   last?: string;
@@ -168,7 +166,7 @@ enum ButtonTypes {
   undefined
 } 
 
-type DeleteButtonProps = {
+export type DeleteButtonProps = {
   name: string;
   type?: string;
   value: string;
@@ -177,11 +175,11 @@ type DeleteButtonProps = {
   item: Listing;
 }
 
-type Vinyls = Vinyl["listings"];
+export type Vinyls = Vinyl["listings"];
 
 //Props Defs
 
-type ListProps = {
+export type ListProps = {
   list: Vinyls;
   page: Pagination;
   range: [number, number];
@@ -191,7 +189,7 @@ type ListProps = {
   onPagesPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
-type ItemProps = {
+export type ItemProps = {
   item: Listing;
   index: number;
   onRemoveItem: (item: Listing) => void;
@@ -199,7 +197,7 @@ type ItemProps = {
   children: React.ReactNode;
 }
 
-type CarouselProps = {
+export type CarouselProps = {
   item: Listing;
   index: number;
   onRemoveItem: (item: Listing) => void;
@@ -208,14 +206,14 @@ type CarouselProps = {
   children: React.ReactNode;
 }
 
-type SearchFormProps = {
+export type SearchFormProps = {
   searchTerm: string;
   onSearchInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onSearchSubmit: (event: React.ChangeEvent<HTMLFormElement>) => void;
   children: React.ReactNode;
 }
 
-type InputWithLabelProps = {
+export type InputWithLabelProps = {
   id: string;
   value: string;
   type?: string;
@@ -505,11 +503,6 @@ const App = () => {
 
   const [slider, setSlider] = React.useState<[number, number]>([1950, 2023]);
 
-    //useEffect for slider values Fetch
-  //React.useEffect(() => {
-  //  console.log(slider);
-  //}, [slider]);
-
   const handleItemsPerPage = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -530,33 +523,12 @@ const App = () => {
     }
 
   }
-
-  const closeNotification = (
-
-  ) => {
-    console.log("Notification to be closed.")
-    setNotification(false);
-  }
   
 
   /*End Event Handlers*/
 
-  //Define Header Nav Items
-  const options = [
-    { link: "What's new?" , label: "What's new?" },
-    { link: 'Contact', label: 'Contact' },
-    {link: 'Jobs', label: 'Jobs' },
-   ]
-
-  const tabs: string[] = ["About"]
-
-   const user = { name: 'Georg Löffler', 
-   image: 'https://avatars.steamstatic.com/a55b513e39410f2ac350958b127fcedbba830e5a_full.jpg' }
-
   return (
     <>
-    <ThemeProvider>
-    <HeaderSimple links={options} user={user} tabs={tabs}></HeaderSimple>
     <UserInfoIcons 
     avatar="https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg" 
     name={'Julian Eggers'} 
@@ -564,8 +536,6 @@ const App = () => {
     phone={'https://www.discogs.com/user/ssrl4000'} 
     email={'https://api.discogs.com/users/ssrl4000'}>
     </UserInfoIcons>
-
-
     <HeroImageRight></HeroImageRight>
       <Center maw={400} h={100} mx="auto">
         <SearchForm 
@@ -710,35 +680,33 @@ const App = () => {
 
         </Grid.Col>
       </Grid>
-      <FooterSocial></FooterSocial>
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
-        <Transition transition="slide-up" mounted={scroll.y > 0}>
-          {(transitionStyles) => (
-            <Button
-              leftIcon={<IconArrowUp size="1rem" />}
-              style={transitionStyles}
-              variant="gradient" gradient={{ from: 'teal', to: 'blue', deg: 60 }}
-              onClick={() => scrollTo({ y: 0 })}
-            >
-              Scroll to top
-            </Button>
-          )}
-        </Transition>
-      </Affix>
-      {notification ? (
-      <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
-      <Notification title="Bummer :(" onClose={handleNotification}>
-        Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
-      </Notification>
-      </Affix>
-      ) : (
-        <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification' hidden>
-        <Notification title="Default notification" >
-          This is default notification with title and body
+            <Transition transition="slide-up" mounted={scroll.y > 0}>
+            {(transitionStyles) => (
+                <Button
+                leftIcon={<IconArrowUp size="1rem" />}
+                style={transitionStyles}
+                variant="gradient" gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+                onClick={() => scrollTo({ y: 0 })}
+                >
+                Scroll to top
+                </Button>
+            )}
+            </Transition>
+        </Affix>
+        {notification ? (
+        <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
+        <Notification title="Bummer :(" onClose={handleNotification}>
+            Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
         </Notification>
         </Affix>
-      )}
-    </ThemeProvider>
+        ) : (
+            <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification' hidden>
+            <Notification title="Default notification" >
+            This is default notification with title and body
+            </Notification>
+            </Affix>
+        )}
     </>
   );
 };
@@ -773,7 +741,7 @@ const SORTS = {
   PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
 }
 
-const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage, handleNotification }) => {
+export const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage, handleNotification }) => {
 
 const [sort, setSort] = React.useState('NONE');
 
@@ -1061,7 +1029,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeIt
     </>
   );
 
-const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, handleNotification
+export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, handleNotification
 }): JSX.Element => {
 
   const current_date = new Date(item.posted);
@@ -1127,7 +1095,9 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
 
   const slides = images.map((image) => (
     <Carousel.Slide key={image}>
-      <Image src={image} height={220} />
+
+        <Image src={image} width={300} height={300} fit="contain" />
+
     </Carousel.Slide>
   ));
 
@@ -1203,7 +1173,10 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
         {item.status === Status.Sold ? (
         <Button radius="md" disabled >Buy now</Button>
         ) : (
-          <Button radius="md" onClick={handleNotification} >Buy now</Button>
+          <>
+          <Link to={`details/${item.release.id}`}>Details</Link>
+          <Button radius="md" onClick={handleNotification} >Add to cart</Button>
+          </>
         )}
       </Group>
     </Card>
