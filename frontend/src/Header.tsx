@@ -10,7 +10,7 @@ import {
   Group,
   Text,
   Menu,
-  Tabs,
+  Indicator,
   Burger,
   rem,
 } from '@mantine/core';
@@ -26,6 +26,8 @@ import {
   IconChevronDown,
   IconShoppingCart
 } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
+import { useCart } from "react-use-cart";
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -118,15 +120,36 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
     </a>
   ));
 
+  const {
+    isEmpty,
+  } = useCart();
+
   return (
     <Header height={60} mb={120}>
       <Container className={classes.header}>
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>
+            <Link to='/'>
             <ActionIcon size="xl" radius="xl">
-              <IconVinyl size="2.125rem" />
-            </ActionIcon>
+                  <IconVinyl size="2.125rem" />
+                </ActionIcon>
+            </Link>
+            <Link to='cart'>
+              {isEmpty ? (
+              <Indicator inline disabled size={12}>
+                <ActionIcon size="xl" radius="xl">
+                  <IconShoppingCart size="2.125rem" />
+                </ActionIcon>
+              </Indicator>
+              ):(
+              <Indicator inline position="middle-end" processing size={12}>
+                <ActionIcon size="xl" radius="xl">
+                  <IconShoppingCart size="2.125rem" />
+                </ActionIcon>
+              </Indicator>
+              )}
+            </Link>
         <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
 
         <Menu
@@ -170,9 +193,6 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Label>Settings</Menu.Label>
               <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
                 Account settings
-              </Menu.Item>
-              <Menu.Item icon={<IconShoppingCart size="0.9rem" stroke={1.5} />}>
-                Shopping Cart
               </Menu.Item>
               <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />}>Logout</Menu.Item>
 

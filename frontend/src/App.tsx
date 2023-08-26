@@ -5,11 +5,13 @@ import axios from 'axios';
 import { sortBy } from 'lodash';
 import { HeroImageRight } from './Banner';
 import { Carousel } from '@mantine/carousel';
-import { AspectRatio, Modal, Notification, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
-import { IconStar } from '@tabler/icons-react';
+import { Modal, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
+import { IconStar, IconShoppingCart } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { useCart } from "react-use-cart";
+import { notifications } from '@mantine/notifications';
 
 /*Object Defs*/
 
@@ -19,6 +21,14 @@ const discogs_api_token: string = ".";
 export type Vinyl = {
   pagination: Pagination;
   listings:   Listing[];
+}
+
+export type ShoppingItem = {
+  id: number;
+  name: string;
+  price: number;
+  quantity?: number;
+  image: string;
 }
 
 export type Listing = {
@@ -184,16 +194,16 @@ export type ListProps = {
   page: Pagination;
   range: [number, number];
   onRemoveItem: (item: Listing) => void;
-  onPageSelect: React.MouseEventHandler<HTMLButtonElement>
-  handleNotification: React.MouseEventHandler<HTMLButtonElement>;
+  onPageSelect: React.MouseEventHandler<HTMLButtonElement>;
   onPagesPerPage: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  addItem: React.MouseEventHandler<HTMLButtonElement>;
 }
 
 export type ItemProps = {
   item: Listing;
   index: number;
   onRemoveItem: (item: Listing) => void;
-  handleNotification: React.MouseEventHandler<HTMLButtonElement>;
+  addItem: React.MouseEventHandler<HTMLButtonElement>;
   children: React.ReactNode;
 }
 
@@ -202,7 +212,7 @@ export type CarouselProps = {
   index: number;
   onRemoveItem: (item: Listing) => void;
   new_record: boolean;
-  handleNotification: React.MouseEventHandler<HTMLButtonElement>;
+  addItem: React.MouseEventHandler<HTMLButtonElement>;
   children: React.ReactNode;
 }
 
@@ -319,9 +329,9 @@ const App = () => {
     ''
     );
 
-  const [notification, setNotification] = React.useState(
-    false,
-  )
+  //Shopping Item
+
+  const { addItem } = useCart();
 
   const [opened, { open, close }] = useDisclosure(false);
 
@@ -509,20 +519,6 @@ const App = () => {
     setItemsPerPage(event.target.value);
     setUrlDiscogs(`${API_ENDPOINT}${event.target.value}`);
   }
-
-  const handleNotification = (
-    event: React.MouseEventHandler<HTMLButtonElement>
-        ) => {
-    if(notification){
-      console.log("clicked via Notification");
-      setNotification(false);
-    }
-    else{
-      console.log("clicked via Buy Button");
-      setNotification(true);
-    }
-
-  }
   
 
   /*End Event Handlers*/
@@ -671,9 +667,9 @@ const App = () => {
               </Center>
               </>
             ) : ( sortedList.length <= 1 && !checkboxesUsed ? (
-              <List list={filteredVinyls} range={slider} page={vinyls.page} handleNotification={handleNotification} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+              <List list={filteredVinyls} range={slider} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage} addItem={addItem}/>
             ) : (
-              <List list={sortedList} range={slider} page={vinyls.page} handleNotification={handleNotification} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage}/>
+              <List list={sortedList} range={slider} page={vinyls.page} onRemoveItem={handleRemoveVinyl} onPageSelect={handlePagination} onPagesPerPage={handleItemsPerPage} addItem={addItem}/>
             )
             )}
           </div>
@@ -694,19 +690,6 @@ const App = () => {
             )}
             </Transition>
         </Affix>
-        {notification ? (
-        <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification'>
-        <Notification title="Bummer :(" onClose={handleNotification}>
-            Buying is currently unavailable. You can buy them also on <a href="https://www.discogs.com/user/ssrl4000">Discogs</a>! <Button size='xs' compact onClick={handleNotification}>Close Me!</Button>
-        </Notification>
-        </Affix>
-        ) : (
-            <Affix position={{ bottom: rem(20), left: rem(20) }} id='notification' hidden>
-            <Notification title="Default notification" >
-            This is default notification with title and body
-            </Notification>
-            </Affix>
-        )}
     </>
   );
 };
@@ -741,7 +724,7 @@ const SORTS = {
   PRICE_DESC: (list: Listing[]) => sortBy(list, 'price.value').reverse(),
 }
 
-export const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage, handleNotification }) => {
+export const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onPageSelect, onPagesPerPage, addItem}) => {
 
 const [sort, setSort] = React.useState('NONE');
 
@@ -902,7 +885,7 @@ return (
             {sortedListWithYear.map((item, index) => (
               <>
                 <div key={item.release.id}> 
-                  <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem} handleNotification={handleNotification}>
+                  <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem} addItem={addItem}>
                     <DeleteButton key={index} name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
                   </Item>
                 </div>
@@ -1029,7 +1012,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({name, value, index, removeIt
     </>
   );
 
-export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, handleNotification
+export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, addItem
 }): JSX.Element => {
 
   const current_date = new Date(item.posted);
@@ -1043,7 +1026,7 @@ export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, handleNot
 
 return (
     <>
-      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} handleNotification={handleNotification}>
+      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} addItem={addItem}>
 
       </CarouselCard>
     </>
@@ -1081,7 +1064,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
-const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_record, handleNotification 
+const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_record, addItem 
 }): JSX.Element =>  {
   const { classes } = useStyles();
 
@@ -1092,13 +1075,21 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
         break;
       images.push(item.release.images[i].resource_url);
     }
-
+  
+  const s: ShoppingItem = {
+    id: item.id,
+    name: item.release.title,
+    price: item.price.value,
+    quantity: 1,
+    image: images[0]
+  }
   const slides = images.map((image) => (
     <Carousel.Slide key={image}>
 
         <Image src={image} width={300} height={300} fit="contain" />
 
     </Carousel.Slide>
+    
   ));
 
   
@@ -1174,8 +1165,12 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
         <Button radius="md" disabled >Buy now</Button>
         ) : (
           <>
-          <Link to={`details/${item.release.id}`}>Details</Link>
-          <Button radius="md" onClick={handleNotification} >Add to cart</Button>
+          <Link to={`details/${item.release.id}/${item.price.value}`}>Details</Link>
+          <Button leftIcon={<IconShoppingCart size="1rem" />} radius="md" onClick={() => 
+             {notifications.show({
+              title: 'Awesome!',
+              message: 'Your item has been added to your shopping cart! 🤥',
+            }); addItem(s);}} >Add to cart</Button>
           </>
         )}
       </Group>

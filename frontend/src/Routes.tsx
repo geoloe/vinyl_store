@@ -4,6 +4,7 @@ import {
 } from 'react-router-dom'
 import Details from './Details'
 import { Layout } from './Layout'
+import { Cart } from './Cart'
 import App from './App'
 
 
@@ -16,12 +17,12 @@ const router = createBrowserRouter([
                 element: <App/>
             },
             {
-                path: 'details/:id',
+                path: 'details/:releaseId/:priceId',
                 element: <Details/>
             },
             {
-                path: 'details',
-                element: <Details/>
+                path: 'cart',
+                element: <Cart/>
             }              
         ]
     },

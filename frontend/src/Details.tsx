@@ -5,9 +5,12 @@ import { AspectRatio, Center, Loader, SimpleGrid, Title, Divider, Container, Fle
 import { Carousel } from "@mantine/carousel";
 import { StatsRing } from "./Stats";
 import { Timeline, Text } from '@mantine/core';
-import { IconGitBranch, IconGitPullRequest, IconGitCommit, IconMessageDots } from '@tabler/icons-react';
+import { IconGitBranch, IconGitPullRequest, IconGitCommit } from '@tabler/icons-react';
 import { ShoppingCart } from 'tabler-icons-react';
 import { Star } from 'tabler-icons-react';
+import { ShoppingItem } from "./App";
+import { notifications } from '@mantine/notifications';
+import { useCart } from "react-use-cart";
 
 
 const discogs_api_token: string = ".";
@@ -220,14 +223,14 @@ const releaseReducer = (
 export const Details = () => {
 
     const params = useParams<Params>();
-    const id = params.id === undefined ? undefined :
-    params.id.toString();
+    const id = params.releaseId === undefined ? undefined :
+    params.releaseId.toString();
+    const price = params.priceId === undefined ? undefined :
+    params.priceId.toString();
     console.log(params)
     console.log("Rendering details.tsx")
 
     const API = 'https://api.discogs.com/releases/' + id;
-
-
 
 
  /** REDUCER HANDLES USE STATES */
@@ -265,6 +268,17 @@ export const Details = () => {
   React.useEffect(() => {
     handleFetchDetails();
     }, [handleFetchDetails]);
+  
+    const { addItem } = useCart();
+
+    let s = {} as ShoppingItem;
+    if(releases.data.images !== undefined){
+        s.id = releases.data.id;
+        s.name = releases.data.title;
+        s.price = price;
+        s.quantity = 1;
+        s.image = releases.data.images[0]?.resource_url;
+      }
 
 let data: any = [];
     if (releases.data.community !== undefined)
@@ -358,8 +372,13 @@ return (
                 </Carousel>
                 <br></br>
                 <Flex gap="md">
-                    <Button leftIcon={<Star size="1rem" />}>Add to Wantlist</Button>
-                    <Button leftIcon={<ShoppingCart size="1rem" />}>Add to cart</Button>
+                    <Title order={2}>{price} €</Title>
+                    <Button leftIcon={<Star size="1rem" />} disabled>Add to Wantlist</Button>
+                    <Button leftIcon={<ShoppingCart size="1rem" />} onClick={() => 
+             {notifications.show({
+              title: 'Awesome!',
+              message: 'Your item has been added to your shopping cart! 🤥',
+            }); addItem(s);}}>Add to cart</Button>                   
                 </Flex>
             </div>
             <div>
