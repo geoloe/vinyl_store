@@ -1,5 +1,6 @@
-import { createStyles, Container, Group, ActionIcon, rem } from '@mantine/core';
-import { IconVinyl, IconBrandYoutube, IconBrandInstagram, IconBrandFacebook } from '@tabler/icons-react';
+import { createStyles, Anchor, Group, ActionIcon, rem } from '@mantine/core';
+import { IconVinyl, IconBrandTwitter, IconBrandYoutube, IconBrandInstagram } from '@tabler/icons-react';
+import { MantineLogo } from '@mantine/ds';
 
 const useStyles = createStyles((theme) => ({
   footer: {
@@ -7,47 +8,64 @@ const useStyles = createStyles((theme) => ({
     borderTop: `${rem(1)} solid ${
       theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
     }`,
-    backgroundColor: "whitesmoke"
   },
 
   inner: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: theme.spacing.xl,
-    paddingBottom: theme.spacing.xl,
+    padding: `${theme.spacing.md} ${theme.spacing.md}`,
 
-    [theme.fn.smallerThan('xs')]: {
+    [theme.fn.smallerThan('sm')]: {
       flexDirection: 'column',
     },
   },
 
   links: {
-    [theme.fn.smallerThan('xs')]: {
-      marginTop: theme.spacing.md,
+    [theme.fn.smallerThan('sm')]: {
+      marginTop: theme.spacing.lg,
+      marginBottom: theme.spacing.sm,
     },
   },
 }));
 
-export function FooterSocial() {
+interface FooterCenteredProps {
+  links: { link: string; label: string }[];
+}
+
+export function FooterCentered({ links }: FooterCenteredProps) {
   const { classes } = useStyles();
+  const items = links.map((link) => (
+    <Anchor<'a'>
+      color="dimmed"
+      key={link.label}
+      href={link.link}
+      sx={{ lineHeight: 1 }}
+      onClick={(event) => event.preventDefault()}
+      size="sm"
+    >
+      {link.label}
+    </Anchor>
+  ));
 
   return (
-    <div className={classes.footer}>
-      <Container className={classes.inner}>
-        <IconVinyl size={28} />
-        <Group spacing={0} className={classes.links} position="right" noWrap>
-          <ActionIcon size="lg">
-            <IconBrandFacebook size="1.05rem" stroke={1.5} />
+    <div id='footer' className={classes.footer}>
+      <div className={classes.inner}>
+          <ActionIcon size="lg" variant="default" radius="xl">
+            <IconVinyl size="1.05rem" stroke={1.5} />
           </ActionIcon>
-          <ActionIcon size="lg">
+
+        <Group className={classes.links}>{items}</Group>
+
+        <Group spacing="xs" position="right" noWrap>
+          <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandYoutube size="1.05rem" stroke={1.5} />
           </ActionIcon>
-          <ActionIcon size="lg">
+          <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandInstagram size="1.05rem" stroke={1.5} />
           </ActionIcon>
         </Group>
-      </Container>
+      </div>
     </div>
   );
 }

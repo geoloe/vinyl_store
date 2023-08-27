@@ -1,17 +1,18 @@
 import { useParams } from "react-router-dom";
 import * as React from 'react';
 import axios from 'axios';
-import { AspectRatio, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button } from '@mantine/core';
+import { AspectRatio, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button, Transition, Affix, rem} from '@mantine/core';
 import { Carousel } from "@mantine/carousel";
 import { StatsRing } from "./Stats";
 import { Timeline, Text } from '@mantine/core';
-import { IconGitBranch, IconGitPullRequest, IconGitCommit } from '@tabler/icons-react';
+import { IconGitBranch, IconGitPullRequest, IconGitCommit, IconArrowUp } from '@tabler/icons-react';
 import { ShoppingCart } from 'tabler-icons-react';
 import { Star } from 'tabler-icons-react';
 import { ShoppingItem } from "./App";
 import { notifications } from '@mantine/notifications';
 import { useCart } from "react-use-cart";
-
+import { handleItemsToBuy } from "./Layout";
+import { useWindowScroll } from '@mantine/hooks';
 
 const discogs_api_token: string = ".";
 
@@ -220,7 +221,12 @@ const releaseReducer = (
 //API Request  with the following api endpoint: 
 
 
-export const Details = () => {
+const Details = () => {
+
+  const { addItem } = useCart();
+
+    //Scroll to top
+  const [scroll, scrollTo] = useWindowScroll();
 
     const params = useParams<Params>();
     const id = params.releaseId === undefined ? undefined :
@@ -247,6 +253,7 @@ export const Details = () => {
     
     try {
       console.log('New API URL: ' + API);
+
       const result = await axios.get(API, {
         headers :
          { 'Authorization': 'Discogs token=' + discogs_api_token }
@@ -269,16 +276,21 @@ export const Details = () => {
     handleFetchDetails();
     }, [handleFetchDetails]);
   
-    const { addItem } = useCart();
+
 
     let s = {} as ShoppingItem;
     if(releases.data.images !== undefined){
         s.id = releases.data.id;
         s.name = releases.data.title;
-        s.price = price;
+        s.price = parseInt(price);
         s.quantity = 1;
         s.image = releases.data.images[0]?.resource_url;
+        s.artist = releases.data.artists[0]?.name;
+
       }
+
+    handleItemsToBuy();
+
 
 let data: any = [];
     if (releases.data.community !== undefined)
@@ -313,6 +325,8 @@ let data: any = [];
                 icon: "up",
             },
         ]
+
+
     }
 
 return (
@@ -373,12 +387,13 @@ return (
                 <br></br>
                 <Flex gap="md">
                     <Title order={2}>{price} €</Title>
-                    <Button leftIcon={<Star size="1rem" />} disabled>Add to Wantlist</Button>
-                    <Button leftIcon={<ShoppingCart size="1rem" />} onClick={() => 
-             {notifications.show({
-              title: 'Awesome!',
-              message: 'Your item has been added to your shopping cart! 🤥',
-            }); addItem(s);}}>Add to cart</Button>                   
+                        <Button name={`${id}`} leftIcon={<ShoppingCart size="1rem" />} onClick={() => 
+                          {notifications.show({
+                           title: 'Awesome!',
+                           message: 'Your item has been added to your shopping cart! 🤥',
+                         }); addItem(s);}}>Add to cart</Button> 
+                        <Button leftIcon={<Star size="1rem" />} disabled>Add to Wantlist</Button>
+                 
                 </Flex>
             </div>
             <div>
@@ -402,6 +417,21 @@ return (
             <div></div>
           </SimpleGrid>
         )}
+
+    <Affix position={{ bottom: rem(20), right: rem(20) }}>
+                <Transition transition="slide-up" mounted={scroll.y > 0}>
+                {(transitionStyles) => (
+                    <Button
+                    leftIcon={<IconArrowUp size="1rem" />}
+                    style={transitionStyles}
+                    variant="gradient" gradient={{ from: 'teal', to: 'blue', deg: 60 }}
+                    onClick={() => scrollTo({ y: 0 })}
+                    >
+                    Scroll to top
+                    </Button>
+                )}
+                </Transition>
+            </Affix>
     </>
 );};
 

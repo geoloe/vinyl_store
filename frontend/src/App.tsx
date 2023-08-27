@@ -12,6 +12,8 @@ import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, 
 import { Link } from 'react-router-dom';
 import { useCart } from "react-use-cart";
 import { notifications } from '@mantine/notifications';
+import { handleItemsToBuy } from './Layout';
+
 
 /*Object Defs*/
 
@@ -29,6 +31,7 @@ export type ShoppingItem = {
   price: number;
   quantity?: number;
   image: string;
+  artist?: string;
 }
 
 export type Listing = {
@@ -523,6 +526,10 @@ const App = () => {
 
   /*End Event Handlers*/
 
+  //Handler when adding or deleting items in shopping cart --> Buttons are disabled/enabled
+  handleItemsToBuy();
+
+
   return (
     <>
     <UserInfoIcons 
@@ -654,7 +661,6 @@ const App = () => {
                   <Button variant="gradient" compact size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }} onClick={close}>Apply changes!</Button>                 
                   </Modal>  
               </Box>
-
         <Grid.Col span="auto">
           <div>
 
@@ -1077,11 +1083,12 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
     }
   
   const s: ShoppingItem = {
-    id: item.id,
+    id: item.release.id,
     name: item.release.title,
     price: item.price.value,
     quantity: 1,
-    image: images[0]
+    image: images[0],
+    artist: item.release.artist
   }
   const slides = images.map((image) => (
     <Carousel.Slide key={image}>
@@ -1166,11 +1173,11 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
         ) : (
           <>
           <Link to={`details/${item.release.id}/${item.price.value}`}>Details</Link>
-          <Button leftIcon={<IconShoppingCart size="1rem" />} radius="md" onClick={() => 
+          <Button name={`${s.id}`} leftIcon={<IconShoppingCart size="1rem" />} radius="md" onClick={() => 
              {notifications.show({
               title: 'Awesome!',
               message: 'Your item has been added to your shopping cart! 🤥',
-            }); addItem(s);}} >Add to cart</Button>
+            }); addItem(s)}} >Add to cart</Button>
           </>
         )}
       </Group>

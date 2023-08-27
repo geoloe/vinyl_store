@@ -12,10 +12,15 @@ body {
     position: relative;
 }
 
-footer {
-    bottom: 0;
-    height: 100px;
+#footer {
+    position: fixed;
     left: 0;
-    position: absolute;
+    bottom: 0;
     width: 100%;
+    text-align: center;
+  }
+
+
+table {
+    overflow-x: auto;
 }

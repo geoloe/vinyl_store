@@ -1,5 +1,5 @@
 import { useCart } from "react-use-cart";
-import { Table, Button, SimpleGrid, Alert, Title } from "@mantine/core";
+import { Table, Button, SimpleGrid, Alert, Title} from "@mantine/core";
 import { IconTrendingDown, IconX, IconAlertCircle} from '@tabler/icons-react';
 import { Link } from "react-router-dom";
 
@@ -11,12 +11,14 @@ export const Cart = () => {
     items,
     updateItemQuantity,
     removeItem,
+    emptyCart,
   } = useCart();
 
   const rows = items.map((element) => (
     <tr key={element.id}>
       <td><img src={element.image} height={150} width={150}></img></td>
       <td>{element.name}</td>
+      <td>{element.artist}</td>
       <td>{element.quantity}</td>
       <td>{element.price} EUR</td>
       <td><Button leftIcon={<IconTrendingDown size="1rem" />} onClick={() => updateItemQuantity(element.id, 0)}></Button>
@@ -30,6 +32,7 @@ export const Cart = () => {
     if (!isEmpty){
     total = items.map(a => a.price).reduce(function(a, b)
     {
+      console.log(a);
       return a + b;
     });
   }  
@@ -46,18 +49,19 @@ export const Cart = () => {
           >
             <div></div>
             <div>
-                {isEmpty ? (
+            {isEmpty ? (
                 <Alert icon={<IconAlertCircle size="1rem" />} title="Oh no!">
                     Your Shopping Cart is Empty! Maybe you would like to browse <Link to="/"> here</Link>?
                 </Alert>
                 ) : (
                     <>
-                    <Title order={1}>Cart ({totalUniqueItems})</Title>
+                    <Title order={1}>Cart ({totalUniqueItems})</Title><br></br><Button onClick={emptyCart}>Empty Cart</Button>
                         <Table striped highlightOnHover withBorder withColumnBorders>
                         <thead>
                             <tr>
                             <th>Album</th>
                             <th>Name</th>
+                            <th>Artist</th>
                             <th>Quantity</th>
                             <th>Price</th>
                             <th>Decrease</th>
@@ -72,6 +76,7 @@ export const Cart = () => {
                 )}
             </div>
             <div></div>
+
           </SimpleGrid>
       </>
     );

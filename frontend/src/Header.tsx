@@ -28,6 +28,7 @@ import {
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useCart } from "react-use-cart";
+import { SwitchToggle } from './Toggler';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -150,6 +151,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               </Indicator>
               )}
             </Link>
+            <SwitchToggle></SwitchToggle>
         <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
 
         <Menu
