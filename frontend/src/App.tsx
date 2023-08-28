@@ -1,14 +1,13 @@
-import { UserInfoIcons } from './UserInfos';
+import { UserInfoIcons } from './Components/UserInfos';
 import { useWindowScroll, useDisclosure } from '@mantine/hooks';
 import * as React from 'react';
 import axios from 'axios';
 import { sortBy } from 'lodash';
-import { HeroImageRight } from './Banner';
+import { HeroImageRight } from './Components/Banner';
 import { Carousel } from '@mantine/carousel';
 import { Modal, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
-import { IconStar, IconShoppingCart } from '@tabler/icons-react';
 import { Alert } from '@mantine/core';
-import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp} from '@tabler/icons-react';
+import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp,  IconStar, IconShoppingCart } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useCart } from "react-use-cart";
 import { notifications } from '@mantine/notifications';
@@ -548,9 +547,10 @@ const App = () => {
                 >
         </SearchForm>
       </Center>
-      <Grid >
 
-            <Box
+      <Grid >
+      <Grid.Col span="content">
+      <Box
                 sx={(theme) => ({
                   backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
                   textAlign: 'center',
@@ -661,6 +661,8 @@ const App = () => {
                   <Button variant="gradient" compact size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }} onClick={close}>Apply changes!</Button>                 
                   </Modal>  
               </Box>
+      </Grid.Col>
+
         <Grid.Col span="auto">
           <div>
 
@@ -852,6 +854,7 @@ return (
                     )}
                 </Button.Group> 
                 </Center>
+                <br></br>
                 <Center>
                 <Text fz="xs" c="dimmed" ta="left">Sort Items</Text>&nbsp;
                 <select name="filter" id="inline-filter" onChange={handleSort}>
@@ -875,7 +878,8 @@ return (
                       <option value="75">75</option>
                       <option value="100">100</option>
                   </select>   
-              </Center>            
+              </Center>
+              <br></br>            
               </Grid.Col>
               <Grid.Col span="content"><Text fz="xs" c="dimmed" ta="right">{page.items} Items found.</Text></Grid.Col>
               </Grid>
@@ -891,7 +895,7 @@ return (
             {sortedListWithYear.map((item, index) => (
               <>
                 <div key={item.release.id}> 
-                  <Item key={item.release.id} index={index} item={item} onRemoveItem={onRemoveItem} addItem={addItem}>
+                  <Item key={item.id} index={index} item={item} onRemoveItem={onRemoveItem} addItem={addItem}>
                     <DeleteButton key={index} name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
                   </Item>
                 </div>
@@ -1032,7 +1036,7 @@ export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, addItem
 
 return (
     <>
-      <CarouselCard item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} addItem={addItem}>
+      <CarouselCard key={item.resource_url} item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} addItem={addItem}>
 
       </CarouselCard>
     </>
@@ -1123,7 +1127,6 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
           {slides}
         </Carousel>
       </Card.Section>
-
       <Group position="apart" mt="lg">
         <Text fw={500} fz="lg">
           {item.release.title}

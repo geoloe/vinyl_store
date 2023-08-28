@@ -3,7 +3,7 @@ import * as React from 'react';
 import axios from 'axios';
 import { AspectRatio, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button, Transition, Affix, rem} from '@mantine/core';
 import { Carousel } from "@mantine/carousel";
-import { StatsRing } from "./Stats";
+import { StatsRing } from "./Components/Stats";
 import { Timeline, Text } from '@mantine/core';
 import { IconGitBranch, IconGitPullRequest, IconGitCommit, IconArrowUp } from '@tabler/icons-react';
 import { ShoppingCart } from 'tabler-icons-react';

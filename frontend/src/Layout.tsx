@@ -1,6 +1,6 @@
 import { ThemeProvider } from './ThemeProvider';
-import { HeaderSimple } from './Header'
-import { FooterCentered } from './Footer';
+import { HeaderSimple } from './Components/Header'
+import { FooterCentered } from './Components/Footer';
 import { Outlet } from 'react-router-dom';
 import { CartProvider } from 'react-use-cart';
 import { Notifications } from '@mantine/notifications';

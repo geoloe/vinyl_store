@@ -1,7 +1,8 @@
 import { useCart } from "react-use-cart";
-import { Table, Button, SimpleGrid, Alert, Title} from "@mantine/core";
-import { IconTrendingDown, IconX, IconAlertCircle} from '@tabler/icons-react';
+import { Divider, Button, SimpleGrid, Alert, Title, Accordion, Image, Text} from "@mantine/core";
+import { IconTrash, IconSquareX, IconAlertCircle} from '@tabler/icons-react';
 import { Link } from "react-router-dom";
+
 
 export const Cart = () => {
     
@@ -14,18 +15,13 @@ export const Cart = () => {
     emptyCart,
   } = useCart();
 
-  const rows = items.map((element) => (
-    <tr key={element.id}>
-      <td><img src={element.image} height={150} width={150}></img></td>
-      <td>{element.name}</td>
-      <td>{element.artist}</td>
-      <td>{element.quantity}</td>
-      <td>{element.price} EUR</td>
-      <td><Button leftIcon={<IconTrendingDown size="1rem" />} onClick={() => updateItemQuantity(element.id, 0)}></Button>
-        </td>
-      <td><Button leftIcon={<IconX size="1rem" />} onClick={() => removeItem(element.id)}></Button>
-        </td>
-    </tr>
+
+  const itemRows = items.map((element) => (
+  <Accordion.Item value={element.name}>
+    <Accordion.Control><Link to={`/details/${element.id}/${element.price}`}> Details </Link><Image maw={150} mx="auto" radius="md" src={element.image} alt={element.name} /><Text fz="xl">{element.name}</Text></Accordion.Control>
+    <Accordion.Panel>Artist: {element.artist} <br></br> Quantity: {element.quantity} <br></br>Price: {element.price} EUR <br></br>
+    <Button leftIcon={<IconSquareX size="1rem" />} onClick={() => removeItem(element.id)}>Remove item</Button></Accordion.Panel>
+  </Accordion.Item>
   ));
 
     let total:number = 0;
@@ -55,23 +51,17 @@ export const Cart = () => {
                 </Alert>
                 ) : (
                     <>
-                    <Title order={1}>Cart ({totalUniqueItems})</Title><br></br><Button onClick={emptyCart}>Empty Cart</Button>
-                        <Table striped highlightOnHover withBorder withColumnBorders>
-                        <thead>
-                            <tr>
-                            <th>Album</th>
-                            <th>Name</th>
-                            <th>Artist</th>
-                            <th>Quantity</th>
-                            <th>Price</th>
-                            <th>Decrease</th>
-                            <th>Empty items</th>
-                            </tr>
-                        </thead>
-                        <tbody>{rows}</tbody>
-                        </Table>
-                        {total != 0 && <Title align="right">Your total is: {total} EUR</Title>}
-                        <Button>Pay</Button>
+                    <Title order={1}>Cart ({totalUniqueItems})</Title><br></br>
+                    <Button leftIcon={<IconTrash size="1rem" />} onClick={emptyCart}>Empty Cart</Button>
+                    <br></br>
+                      <Accordion variant="contained" defaultValue="customization">
+                      {itemRows}
+                      </Accordion>
+                      <Divider my="sm" variant="dotted" />
+                      {total != 0 && <Title order={3} align="right">Your Sub-total is: {total} EUR</Title>}
+                      <Divider my="sm" variant="dotted" />
+                      {total != 0 && <Title align="right">Your total is: {total + 10} EUR</Title>}
+                      <Button>Pay</Button>
                     </>
                 )}
             </div>
