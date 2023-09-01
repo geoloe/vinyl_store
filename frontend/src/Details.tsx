@@ -14,7 +14,8 @@ import { useCart } from "react-use-cart";
 import { handleItemsToBuy } from "./Layout";
 import { useWindowScroll } from '@mantine/hooks';
 
-const discogs_api_token: string = ".";
+
+const discogs_api_token: string = import.meta.env.VITE_DISCOGS_API_KEY;
 
 type Params = {
     id: string;
@@ -188,6 +189,27 @@ type VideosProps = {
 type TracklistProps = {
     item: any;
 }
+
+const useMousePosition = () => {
+  const [
+    mousePosition,
+    setMousePosition
+  ] = React.useState({ x: null, y: null });
+
+  React.useEffect(() => {
+    const updateMousePosition = ev => {
+      setMousePosition({ x: ev.clientX, y: ev.clientY });
+    };
+    
+    window.addEventListener('mousemove', updateMousePosition);
+
+    return () => {
+      window.removeEventListener('mousemove', updateMousePosition);
+    };
+  }, []);
+
+  return mousePosition;
+};
   
 //Reducer
 const releaseReducer = (
@@ -227,6 +249,8 @@ const Details = () => {
 
     //Scroll to top
   const [scroll, scrollTo] = useWindowScroll();
+
+  const mousePosition = useMousePosition();
 
     const params = useParams<Params>();
     const id = params.releaseId === undefined ? undefined :
@@ -319,7 +343,7 @@ let data: any = [];
             },
             {
                 label: "Lowest Price",
-                stats: releases.data.lowest_price.toString() + "€",
+                stats: releases.data.lowest_price.toString() + " €",
                 progress: releases.data.community.rating.average,
                 color: "blue",
                 icon: "up",

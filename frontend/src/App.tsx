@@ -16,7 +16,7 @@ import { handleItemsToBuy } from './Layout';
 
 /*Object Defs*/
 
-const discogs_api_token: string = ".";
+const discogs_api_token: string = import.meta.env.VITE_DISCOGS_API_KEY;
 
 //Steam Objects
 export type Vinyl = {
@@ -268,7 +268,7 @@ type VinylsAction =
   | VinylsRemoveAction;
 
 //Define custom hook
-const useStorageState = (
+export const useStorageState = (
   key: string,
   initialState: string
 ): [string, (newValue: string) => void ] => {
@@ -451,7 +451,6 @@ const App = () => {
     }
   )
   
-
   const sortedList: Listing[] = filteredVinyls.filter(function (vinyl)
   {
     if (formSort.media_m){
@@ -549,7 +548,6 @@ const App = () => {
       </Center>
 
       <Grid >
-      <Grid.Col span="content">
       <Box
                 sx={(theme) => ({
                   backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
@@ -609,6 +607,7 @@ const App = () => {
                         <Checkbox size="xs" value="media_nm" label="Near Mint" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="media_vgp" label="Very Good Plus" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="media_vg" label="Very Good" onChange={handleCheckboxSort}/>
+                        <br></br>
                         <Checkbox size="xs" value="media_g" label="Good" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="media_f" label="Fair" onChange={handleCheckboxSort}/>
                       </Group>
@@ -620,6 +619,7 @@ const App = () => {
                         <Checkbox size="xs" value="sleeve_nm" label="Near Mint" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="sleeve_vgp" label="Very Good Plus" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="sleeve_vg" label="Very Good" onChange={handleCheckboxSort}/>
+                        <br></br>
                         <Checkbox size="xs" value="sleeve_g" label="Good" onChange={handleCheckboxSort}/>
                         <Checkbox size="xs" value="sleeve_f" label="Fair" onChange={handleCheckboxSort}/>
                       </Group>
@@ -661,7 +661,6 @@ const App = () => {
                   <Button variant="gradient" compact size='xs' gradient={{ from: 'teal', to: 'blue', deg: 60 }} onClick={close}>Apply changes!</Button>                 
                   </Modal>  
               </Box>
-      </Grid.Col>
 
         <Grid.Col span="auto">
           <div>

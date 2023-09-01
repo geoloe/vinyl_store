@@ -17,7 +17,8 @@
     "jsx": "react-jsx",
     "paths": {
       "@test-utils": ["./test-utils"]
-    }
+    },
+    "types": ["vite/client"]
   },
   "include": ["src", "test-utils"],
   "references": [{ "path": "./tsconfig.node.json" }]

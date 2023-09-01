@@ -8,7 +8,7 @@ interface ThemeProviderProps {
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
   //Declare Context for dark and light mode for the app
-  const [colorScheme, setColorScheme] = useState<ColorScheme>('dark');
+  const [colorScheme, setColorScheme] = useState<ColorScheme>('light');
   const toggleColorScheme = (value?: ColorScheme) =>
   setColorScheme(value || (colorScheme === 'dark' ? 'light' : 'dark'));
 

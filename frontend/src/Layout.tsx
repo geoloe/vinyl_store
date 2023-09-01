@@ -39,9 +39,9 @@ export const Layout = () => {
        ]
     
       const tabs: string[] = ["About"]
-    
-       const user = { name: 'Georg Löffler', 
-       image: 'https://avatars.steamstatic.com/a55b513e39410f2ac350958b127fcedbba830e5a_full.jpg' }
+
+      const user = { name: localStorage.getItem('user'), 
+      image: 'https://avatars.steamstatic.com/a55b513e39410f2ac350958b127fcedbba830e5a_full.jpg' }
 
 return (
     <>

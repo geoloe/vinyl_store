@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ActionIcon, Header} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconVinyl } from '@tabler/icons-react';
+import { IconVinyl, IconLogin } from '@tabler/icons-react';
 import {
   createStyles,
   Container,
@@ -97,7 +97,7 @@ const useStyles = createStyles((theme) => ({
 
 interface HeaderSimpleProps {
   links: { link: string; label: string }[];
-  user: { name: string; image: string };
+  user: { name: string | null; image: string };
   tabs: string[];
   }
 
@@ -131,6 +131,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>
+        <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
             <Link to='/'>
             <ActionIcon size="xl" radius="xl">
                   <IconVinyl size="2.125rem" />
@@ -152,9 +153,9 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               )}
             </Link>
             <SwitchToggle></SwitchToggle>
-        <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
-
-        <Menu
+    {localStorage.getItem('user')?.length != 0 ? (
+      <>
+          <Menu
             width={260}
             position="bottom-end"
             transitionProps={{ transition: 'pop-top-right' }}
@@ -167,7 +168,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
                 className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
               >
                 <Group spacing={7}>
-                  <Avatar src={user.image} alt={user.name} radius="xl" size={20} />
+                  <Avatar src={user.image} alt={user.image} radius="xl" size={20} />
                   <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
                     {user.name}
                   </Text>
@@ -184,7 +185,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Item
                 icon={<IconStar size="0.9rem" color={theme.colors.yellow[6]} stroke={1.5} />}
               >
-                Wantlist
+               Wantlist
               </Menu.Item>
               <Menu.Item
                 icon={<IconMessage size="0.9rem" color={theme.colors.blue[6]} stroke={1.5} />}
@@ -196,7 +197,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
                 Account settings
               </Menu.Item>
-              <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />}>Logout</Menu.Item>
+              <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />} onClick={() => {localStorage.setItem('user', ''); window.location.reload()}}>Logout</Menu.Item>
 
               <Menu.Divider />
 
@@ -208,7 +209,17 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
                 Delete account
               </Menu.Item>
             </Menu.Dropdown>
-          </Menu>
+          </Menu> 
+          </>
+        ) : (
+          <Link to={'login'}>
+          <ActionIcon size="xl" radius="xl">
+            <IconLogin size="2.125rem" />
+          </ActionIcon>
+          </Link>
+        )
+        }
+
       </Container>
     </Header>
   );
