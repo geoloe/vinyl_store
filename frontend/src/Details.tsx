@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import * as React from 'react';
 import axios from 'axios';
-import { AspectRatio, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button, Transition, Affix, rem} from '@mantine/core';
+import { AspectRatio, Box, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button, Transition, Affix, rem} from '@mantine/core';
 import { Carousel } from "@mantine/carousel";
 import { StatsRing } from "./Components/Stats";
 import { Timeline, Text } from '@mantine/core';
@@ -13,6 +13,7 @@ import { notifications } from '@mantine/notifications';
 import { useCart } from "react-use-cart";
 import { handleItemsToBuy } from "./Layout";
 import { useWindowScroll } from '@mantine/hooks';
+import { myItem, MyWantlist } from "./App";
 
 
 const discogs_api_token: string = import.meta.env.VITE_DISCOGS_API_KEY;
@@ -240,6 +241,8 @@ const releaseReducer = (
   }
 };
 
+
+
 //API Request  with the following api endpoint: 
 
 
@@ -250,6 +253,67 @@ const Details = () => {
     //Scroll to top
   const [scroll, scrollTo] = useWindowScroll();
 
+  //set remove and add to wantlist toggle
+  const [active, setActive] = React.useState(false);
+
+  function handleWantlist(id: number, name: string, price: number, images:string){
+
+    let wl: MyWantlist = JSON.parse(localStorage.getItem("wantlist") || "[]");
+    console.log("wantlist", wl)
+
+    let user: string | null = localStorage.getItem("user")!;
+
+    console.log(user)
+
+    let items: myItem[] = wl[user];
+
+    if (items === undefined){
+      items = [];
+    }
+
+    if (items.length === 0){
+      localStorage.getItem("wantlist")
+    }
+    //Check if user has signed in
+    if (localStorage.getItem('user')?.length != 0)
+    {
+
+      console.log("User:", user)
+
+
+      if(localStorage.getItem('wantlist')?.includes(id.toString())){
+        setActive(false);
+        items = items.filter(i => i.id !== id);
+
+        let wantlist: MyWantlist = {
+          [user]: items
+        }
+
+        localStorage.setItem("wantlist", JSON.stringify(wantlist));
+      }
+      else{
+        console.log("Found user... adding items")
+        items.push({id: id, name: name, price: price, count: 1, image: images});
+        setActive(true);
+
+        let wantlist: MyWantlist = {
+          [user]: items
+        }
+
+        localStorage.setItem("wantlist", JSON.stringify(wantlist));
+      }
+    }
+    //If yes, then...
+  
+      //Check if item is in wantlist
+  
+        //if yes, then remove it and change button name to add to wantlist
+  
+        //else add it and change button name to remove from wantlist
+  
+    //Else show alert --> Please Login to save items
+  }
+
   const mousePosition = useMousePosition();
 
     const params = useParams<Params>();
@@ -259,6 +323,9 @@ const Details = () => {
     params.priceId.toString();
     console.log(params)
     console.log("Rendering details.tsx")
+
+
+  
 
     const API = 'https://api.discogs.com/releases/' + id;
 
@@ -315,6 +382,19 @@ const Details = () => {
 
     handleItemsToBuy();
 
+    function checkWantlist(id: number) {
+      if(localStorage.getItem('wantlist')?.includes(id.toString())){
+        setActive(true);
+        console.log("ID DOUNF!!!!:", active)
+      }else{
+        setActive(false);
+      }
+    }
+
+    React.useEffect(() => {
+      checkWantlist(id);
+    }, []);
+
 
 let data: any = [];
     if (releases.data.community !== undefined)
@@ -364,6 +444,7 @@ return (
             </Center>
         </>
         ):(
+            
             <SimpleGrid
             cols={4}
             spacing="lg"
@@ -378,7 +459,10 @@ return (
                 <SimpleGrid cols={1}>
                         <div style={{display: 'flex', justifyContent:'center'}}>
                 {releases.data.formats?.map((item) => (  
+                            <>
+
                             <Timeline active={3} bulletSize={24} lineWidth={2}>
+                            
                             <Timeline.Item bullet={<IconGitBranch size={12} />} title="Type">
                             <Text color="dimmed" size="sm">{item.name}</Text>
                             </Timeline.Item>
@@ -392,6 +476,8 @@ return (
                             <Text color="dimmed" size="sm">{item.descriptions.toString()}<Text variant="link" component="span" inherit> Released in {releases.data.country} in {releases.data.year}</Text></Text>
                             </Timeline.Item>
                             </Timeline>
+
+                            </>
                             ))}
                     </div>
                 </SimpleGrid>
@@ -416,8 +502,32 @@ return (
                            title: 'Awesome!',
                            message: 'Your item has been added to your shopping cart! 🤥',
                          }); addItem(s);}}>Add to cart</Button> 
-                        <Button leftIcon={<Star size="1rem" />} disabled>Add to Wantlist</Button>
-                 
+                         {localStorage.getItem('user')?.length != 0 ? ( !active ? (
+                          <Button leftIcon={<Star size="1rem" />} onClick={() => 
+                            {notifications.show({
+                              title: 'Nice!',  
+                              message: 'Item was added to your wantlist! Under your name you can find it',
+                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url);}}
+                            >{ !active ? "Add to Wantlist " : "Remove from Wantlist"}</Button>  
+                         ) : (
+                          <Button leftIcon={<Star size="1rem" />} onClick={() => 
+                            {notifications.show({
+                              title: 'Nice!',  
+                              message: 'Item was removed from your wantlist!',
+                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url);}}
+                            >{ !active ? "Add to Wantlist " : "Remove from Wantlist"}</Button>  
+                         )
+                       
+                            )
+                            : 
+                            (
+                          <Button leftIcon={<Star size="1rem" />} onClick={() => 
+                            {notifications.show({
+                              title: 'Oh oh!',
+                              message: 'Please sign in to add items to your wantlist',
+                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url);}}
+                            >{ !active ? "Add to Wantlist " : "Remove from Wantlist"}</Button>
+                         )}
                 </Flex>
             </div>
             <div>
@@ -440,6 +550,7 @@ return (
             </div>
             <div></div>
           </SimpleGrid>
+
         )}
 
     <Affix position={{ bottom: rem(20), right: rem(20) }}>

@@ -165,7 +165,7 @@ export const Login = () => {
             </Alert>
             <br></br><br></br>
             <Center>
-                <Button leftIcon={<IconLogin size="1rem" />}><Link to={'/'}>Browse Collection</Link></Button>
+                <Button component={Link} to="/" leftIcon={<IconLogin size="1rem" />}>Browse Collection</Button>
             </Center>
             </div>
             <div></div>
@@ -199,6 +199,7 @@ export const Login = () => {
               
                 <Title order={1}>Not registered? Sign up now!</Title>
               <Center>
+                <br></br><br></br><br></br>
                 <Link to={'/signup'}>
                     <Button leftIcon={<IconLogin size="1rem" />} >Sign Up</Button>
                   </Link>

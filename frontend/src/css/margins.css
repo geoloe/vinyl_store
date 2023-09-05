@@ -24,3 +24,8 @@ body {
 table {
     overflow-x: auto;
 }
+
+#front{
+    position: absolute;
+    z-index: 10;
+};

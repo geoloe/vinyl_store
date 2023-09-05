@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { CardItem } from './Card';
 import { ActionIcon, Header} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconVinyl, IconLogin } from '@tabler/icons-react';
+import { IconVinyl, IconLogin, IconDashboard } from '@tabler/icons-react';
 import {
   createStyles,
   Container,
@@ -13,6 +14,11 @@ import {
   Indicator,
   Burger,
   rem,
+  List,
+  Image,
+  Paper,
+  Button,
+  Transition
 } from '@mantine/core';
 import {
   IconLogout,
@@ -20,17 +26,38 @@ import {
   IconStar,
   IconMessage,
   IconSettings,
-  IconPlayerPause,
   IconTrash,
-  IconSwitchHorizontal,
   IconChevronDown,
   IconShoppingCart
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useCart } from "react-use-cart";
 import { SwitchToggle } from './Toggler';
+import { Drawer } from '@mantine/core';
+import { MyWantlist, myItem } from '../App';
+const HEADER_HEIGHT = rem(60);
 
 const useStyles = createStyles((theme) => ({
+
+  root: {
+    position: 'relative',
+    zIndex: 1,
+  },
+  dropdown: {
+    position: 'absolute',
+    top: HEADER_HEIGHT,
+    left: 0,
+    right: 0,
+    zIndex: 0,
+    borderTopRightRadius: 0,
+    borderTopLeftRadius: 0,
+    borderTopWidth: 0,
+    overflow: 'hidden',
+
+    [theme.fn.largerThan('sm')]: {
+      display: 'none',
+    },
+  },
   header: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -103,9 +130,16 @@ interface HeaderSimpleProps {
 
 export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
   const [opened, { toggle }] = useDisclosure(false);
+  const [abierto, { open, close }] = useDisclosure(false);
   const [active, setActive] = useState(links[0].link);
   const { classes, theme, cx } = useStyles();
   const [userMenuOpened, setUserMenuOpened] = useState(false);
+  
+  let wl: MyWantlist = JSON.parse(localStorage.getItem("wantlist") || "[]");
+
+  let currentUser: string | null = localStorage.getItem("user")!;
+  
+  let wantlistItems: myItem[] = wl[currentUser];
 
   const items = links.map((link) => (
     <a
@@ -131,6 +165,58 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
         <Group spacing={5} className={classes.links}>
           {items}
         </Group>
+        <Transition transition="pop-top-right" duration={200} mounted={opened}>
+          {(styles) => (
+            <>
+            <Paper id="front" className={classes.dropdown} withBorder style={styles}>
+            {localStorage.getItem('user')?.length != 0 ? (
+            <>
+            <Button variant='light' fullWidth>
+              <Group spacing={7}>
+                  <Avatar src={user.image} alt={user.image} radius="xl" size={20} />
+                  <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                    {user.name}
+                  </Text>
+                  <IconChevronDown size={rem(12)} stroke={1.5} />
+              </Group>
+            </Button>
+            <Button variant='subtle' fullWidth onClick={open}>
+              <Group spacing={7}>
+              <IconStar size="0.9rem" color={theme.colors.yellow[6]} stroke={1.5} />
+                  <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                    Wantlist
+                  </Text>
+              </Group>
+            </Button>
+            <Button variant='subtle' fullWidth>
+              <Group spacing={7}>
+              <IconDashboard size="0.9rem" stroke={1.5} />
+                  <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                    Dashboard
+                  </Text>
+              </Group>
+            </Button>
+            <Button variant='subtle' fullWidth onClick={() => {localStorage.setItem('user', ''); window.location.reload()}}>
+              <Group spacing={7}>
+              <IconLogout size="0.9rem" stroke={1.5} />
+              <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                    Logout
+                  </Text>
+              </Group>
+            </Button>
+            <Button variant='light' radius={0} fullWidth>
+                  {items}
+            </Button>
+            </>
+            ) : (
+              <Button variant='light' radius={0} fullWidth>
+                  {items}
+              </Button>
+            )}
+            </Paper>
+            </>
+          )}
+        </Transition>
         <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
             <Link to='/'>
             <ActionIcon size="xl" radius="xl">
@@ -155,15 +241,43 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
             <SwitchToggle></SwitchToggle>
     {localStorage.getItem('user')?.length != 0 ? (
       <>
+      <Drawer opened={abierto} onClose={close} title={`Wantlist for ${currentUser}`}>
+      
+      <List>
+        {wantlistItems !== undefined ? ( wantlistItems.length == 0 ? (
+                  <>
+                  <List.Item>No items in wantlist</List.Item>
+                  </>
+        ):(
+          <>
+          {wantlistItems.map((item) => (
+            <CardItem id={item.id} name={item.name} price={item.price} count={item.count} image={item.image}/>
+          ))}
+          </>
+        ))      
+
+
+        : (
+
+          <>
+          <List.Item>No items in wantlist</List.Item>
+          </>
+
+        )}
+
+      </List>
+      </Drawer>
+      
           <Menu
             width={260}
             position="bottom-end"
             transitionProps={{ transition: 'pop-top-right' }}
             onClose={() => setUserMenuOpened(false)}
             onOpen={() => setUserMenuOpened(true)}
-            withinPortal
+            withinPortal        
+            
           >
-            <Menu.Target>
+            <Menu.Target >
               <UnstyledButton
                 className={cx(classes.user, { [classes.userActive]: userMenuOpened })}
               >
@@ -178,12 +292,12 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item
-                icon={<IconHeart size="0.9rem" color={theme.colors.red[6]} stroke={1.5} />}
+                icon={<IconDashboard size="0.9rem" color={theme.colors.red[6]} stroke={1.5} />}
               >
-                Favorite Vinyls
+                Dashboard
               </Menu.Item>
               <Menu.Item
-                icon={<IconStar size="0.9rem" color={theme.colors.yellow[6]} stroke={1.5} />}
+                icon={<IconStar size="0.9rem" color={theme.colors.yellow[6]} stroke={1.5} />} onClick={open}
               >
                Wantlist
               </Menu.Item>
@@ -202,9 +316,6 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Divider />
 
               <Menu.Label>Danger zone</Menu.Label>
-              <Menu.Item icon={<IconPlayerPause size="0.9rem" stroke={1.5} />}>
-                Pause subscription
-              </Menu.Item>
               <Menu.Item color="red" icon={<IconTrash size="0.9rem" stroke={1.5} />}>
                 Delete account
               </Menu.Item>

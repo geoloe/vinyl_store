@@ -5,13 +5,14 @@ import axios from 'axios';
 import { sortBy } from 'lodash';
 import { HeroImageRight } from './Components/Banner';
 import { Carousel } from '@mantine/carousel';
-import { Modal, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
+import { Modal, Tabs, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
 import { Alert } from '@mantine/core';
-import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp,  IconStar, IconShoppingCart } from '@tabler/icons-react';
+import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp,  IconStar, IconShoppingCart, IconVinyl, IconDeviceGamepad } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useCart } from "react-use-cart";
 import { notifications } from '@mantine/notifications';
 import { handleItemsToBuy } from './Layout';
+import { NotFoundTitle } from './Components/Error';
 
 
 /*Object Defs*/
@@ -283,6 +284,19 @@ export const useStorageState = (
   return [value, setValue]
 };
 
+
+export type MyWantlist = {
+  [user:string]: myItem[];
+}
+
+export type myItem = {
+  id: number;
+  name: string;
+  price: number;
+  count: number;
+  image: string;
+}
+
 const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?per_page='; 
 
 const vinylsReducer = (
@@ -322,6 +336,25 @@ const vinylsReducer = (
       throw new Error();
   }
 };
+
+export function removeWantlistItem(id: number){
+  let wl: MyWantlist = JSON.parse(localStorage.getItem("wantlist") || "[]");
+  console.log("wantlist", wl)
+
+  let user: string | null = localStorage.getItem("user")!;
+
+  console.log(user)
+
+  let items: myItem[] = wl[user];
+
+  if(localStorage.getItem('wantlist')?.includes(id.toString())){
+    items = items.filter(i => i.id !== id);
+    let wantlist: MyWantlist = {
+      [user]: items
+    }
+    localStorage.setItem("wantlist", JSON.stringify(wantlist));
+}
+}
 
 
 const App = () => {
@@ -538,6 +571,15 @@ const App = () => {
     email={'https://api.discogs.com/users/ssrl4000'}>
     </UserInfoIcons>
     <HeroImageRight></HeroImageRight>
+    <Tabs defaultValue="vinyls">
+      <Tabs.List>
+        <Tabs.Tab value="vinyls" icon={<IconVinyl size="0.8rem" />}>Vinyls Catalogue</Tabs.Tab>
+        <Tabs.Tab value="games" icon={<IconDeviceGamepad size="0.8rem" />}>Games Catalogue</Tabs.Tab>
+      </Tabs.List>
+
+      <Tabs.Panel value="vinyls" pt="xs">
+        
+
       <Center maw={400} h={100} mx="auto">
         <SearchForm 
                 searchTerm={searchTerm}
@@ -683,6 +725,16 @@ const App = () => {
 
         </Grid.Col>
       </Grid>
+
+        
+      </Tabs.Panel>
+
+      <Tabs.Panel value="games" pt="xs">
+              <NotFoundTitle></NotFoundTitle>
+      </Tabs.Panel>
+
+    </Tabs>
+
       <Affix position={{ bottom: rem(20), right: rem(20) }}>
             <Transition transition="slide-up" mounted={scroll.y > 0}>
             {(transitionStyles) => (
@@ -696,7 +748,7 @@ const App = () => {
                 </Button>
             )}
             </Transition>
-        </Affix>
+      </Affix>
     </>
   );
 };

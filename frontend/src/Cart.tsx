@@ -4,6 +4,7 @@ import { IconTrash, IconSquareX, IconAlertCircle} from '@tabler/icons-react';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import * as React from 'react';
+
 import {
   PayPalScriptProvider,
   PayPalButtons,
@@ -20,7 +21,9 @@ type paypalStyle = {
 } | undefined
 
 const style: paypalStyle = {"color":"blue"};
-    ////// PAY PAL Component ////////
+
+
+////// PAY PAL Component ////////
 // Custom component to wrap the PayPalButtons and show loading spinner
 const ButtonWrapper = () => {
 

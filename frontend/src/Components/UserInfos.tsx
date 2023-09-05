@@ -1,4 +1,4 @@
-import { Rating, createStyles, Avatar, Text, Group } from '@mantine/core';
+import { Rating, createStyles, Avatar, Text, Group, Image } from '@mantine/core';
 import { IconPhoneCall, IconAt } from '@tabler/icons-react';
 
 const useStyles = createStyles((theme) => ({
@@ -25,7 +25,6 @@ export function UserInfoIcons({ avatar, name, title, phone, email }: UserInfoIco
   return (
     <div>
       <Group noWrap>
-        <Avatar src={avatar} size={94} radius="md" />
         <div>
           <Text fz="xs" tt="uppercase" fw={700} c="dimmed">
             {title}

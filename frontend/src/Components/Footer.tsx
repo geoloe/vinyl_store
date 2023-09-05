@@ -51,13 +51,14 @@ export function FooterCentered({ links }: FooterCenteredProps) {
   return (
     <div id='footer' className={classes.footer}>
       <div className={classes.inner}>
-          <ActionIcon size="lg" variant="default" radius="xl">
-            <IconVinyl size="1.05rem" stroke={1.5} />
-          </ActionIcon>
+
 
         <Group className={classes.links}>{items}</Group>
 
         <Group spacing="xs" position="right" noWrap>
+        <ActionIcon size="lg" variant="default" radius="xl">
+            <IconVinyl size="1.05rem" stroke={1.5} />
+          </ActionIcon>
           <ActionIcon size="lg" variant="default" radius="xl">
             <IconBrandYoutube size="1.05rem" stroke={1.5} />
           </ActionIcon>
