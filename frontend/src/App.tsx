@@ -5,7 +5,7 @@ import axios from 'axios';
 import { sortBy } from 'lodash';
 import { HeroImageRight } from './Components/Banner';
 import { Carousel } from '@mantine/carousel';
-import { Modal, Tabs, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
+import { Modal, ScrollArea, Tabs, Affix, Transition, MultiSelect, Checkbox, Avatar, Badge, Box, SimpleGrid, Center, Loader, Text, Grid, createStyles, Image, Button, Card, Group, getStylesRef, rem, Pagination, Tooltip, RangeSlider } from '@mantine/core';
 import { Alert } from '@mantine/core';
 import { IconAlertCircle, IconChevronRight, IconChevronsRight, IconChevronLeft, IconChevronsLeft, IconFilterSearch, IconArrowUp,  IconStar, IconShoppingCart, IconVinyl, IconDeviceGamepad } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
@@ -13,11 +13,30 @@ import { useCart } from "react-use-cart";
 import { notifications } from '@mantine/notifications';
 import { handleItemsToBuy } from './Layout';
 import { NotFoundTitle } from './Components/Error';
+import { ReactSearchAutocomplete } from 'react-search-autocomplete'
+import MantineSearchBar from './Components/SearchBar';
+import { useNavigate } from 'react-router-dom';
+
 
 
 /*Object Defs*/
 
 const discogs_api_token: string = import.meta.env.VITE_DISCOGS_API_KEY;
+type SearchObj = {
+  thumbnail:      string;
+  description:    string;
+  images:         Image[];
+  artist:         string;
+  format:         string;
+  resource_url:   string;
+  title:          string;
+  year:           number;
+  id:             number;
+  label:          string;
+  catalog_number: string;
+  stats:          ReleaseStats;
+  price:          Price;
+}
 
 //Steam Objects
 export type Vinyl = {
@@ -364,6 +383,16 @@ const App = () => {
     ''
     );
 
+  const [user, setUser] = useStorageState(
+    'user',
+    ''
+  );
+
+  const [wantlist, setWantlist] = useStorageState(
+    'wantlist',
+    '[]'
+  );
+  const navigate = useNavigate();
   //Shopping Item
 
   const { addItem } = useCart();
@@ -560,7 +589,62 @@ const App = () => {
   //Handler when adding or deleting items in shopping cart --> Buttons are disabled/enabled
   handleItemsToBuy();
 
+  const handleOnSearch = (string: string, results: SearchObj[]) => {
+    // onSearch will have as the first callback parameter
+    // the string searched and for the second the results.
+    console.log(string, results)
+  }
 
+  const handleOnHover = (result: SearchObj) => {
+    // the item hovered
+    console.log(result)
+  }
+
+  const handleOnSelect = (item: SearchObj) => {
+    // the item selected
+    navigate(`/details/${item.id}/${item.price.value}`);
+    console.log(`/details/${item.id}/${item.price.value}`)
+  }
+
+  const handleOnFocus = () => {
+    console.log('Focused')
+  }
+
+  const formatResult = (item: SearchObj) => {
+    return (
+      <>
+          <div id='front2'>
+            <span style={{ display: 'block', textAlign: 'left' }}><Image src={item.thumbnail} width={60} height={60}></Image></span>
+            <span style={{ display: 'block', textAlign: 'left' }}>{item.artist}</span>
+            <span style={{ display: 'block', textAlign: 'left' }}>{item.title}</span>
+          </div>
+      </>
+    )
+  }
+
+ ////////// Search /////////////
+ // Flatten Release array
+    const results: any = vinyls.data.flatMap(
+      (elem) => (elem.release)
+    )
+  // Flatten price Array
+    const price: any = vinyls.data.flatMap(
+      (elem) => (elem.price)
+    )
+      ///Create Search Object for Item search bar
+    function appendObjectAsAttribute(arr: any[], attributeName: string, objToAppend: any): any[] {
+      // Make a copy of the original array to avoid modifying it directly
+      const newArr = [...arr];
+    
+      // Loop through the array and append the object as an attribute to each object
+      newArr.forEach((item, index) => {
+        item[attributeName] = objToAppend[index];
+      });
+    
+      return newArr;
+    }
+    const newArray: SearchObj[] = appendObjectAsAttribute(results, 'price', price);
+ ////////// Search /////////////
   return (
     <>
     <UserInfoIcons 
@@ -579,15 +663,33 @@ const App = () => {
 
       <Tabs.Panel value="vinyls" pt="xs">
         
+      <SimpleGrid cols={3}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 3, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 2, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+        ]}>
+        <div>
 
-      <Center maw={400} h={100} mx="auto">
-        <SearchForm 
-                searchTerm={searchTerm}
-                onSearchInput={handleSearchInput}
-                onSearchSubmit={handleSearchSubmit}
-                >
-        </SearchForm>
-      </Center>
+        </div>
+        <div style={{ width: 400 }}>
+              <ReactSearchAutocomplete
+                items={newArray}
+                onSearch={handleOnSearch}
+                onHover={handleOnHover}
+                onSelect={handleOnSelect}
+                onFocus={handleOnFocus}
+                fuseOptions={{ keys: ["id", "description"] }}
+                resultStringKeyName="artist"
+                formatResult={formatResult}
+                maxResults={1}
+              />
+            </div>
+        <div>
+        </div>
+      </SimpleGrid>
+
 
       <Grid >
       <Box
@@ -613,6 +715,15 @@ const App = () => {
                   ]}>
                   <Grid.Col span="content">
                       <Text align='center' fw={800}>Filter Options</Text>
+                      <Text align='left'>Filter by Title</Text>                                            
+                      <Center maw={400} h={100} mx="auto">
+                        <SearchForm 
+                                searchTerm={searchTerm}
+                                onSearchInput={handleSearchInput}
+                                onSearchSubmit={handleSearchSubmit}
+                                >
+                      </SearchForm>
+                      </Center>
 
                       <Text align='left'>Format Information</Text>                                            
                       <Group >

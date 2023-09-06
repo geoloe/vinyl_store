@@ -6,7 +6,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 
 
 
-interface Registration {
+interface Password {
     email: string,
     password: string,
     confirmPassword: string,
@@ -17,7 +17,7 @@ interface Registration {
 // Actions and States Defs
 
 type formDataState = {
-  data: Registration;
+  data: Password;
   isLoading: boolean;
   isError: boolean;
 }
@@ -28,7 +28,7 @@ type FormFetchInitAction = {
 
 type FormFetchSuccessAction = {
   type: 'FORM_DATA_FETCH_SUCCESS';
-  payload: Registration;
+  payload: Password;
 }
 
 type FormFetchFailureAction = {
@@ -42,7 +42,7 @@ type VinylsAction =
 
 
 
-const registerReducer = (
+const passwordReducer = (
   state: formDataState, action: VinylsAction
 ) => {
   switch (action.type) {
@@ -70,7 +70,7 @@ const registerReducer = (
   }
 };
 
-export function RegistrationForm() {
+export function RegistrationPassword() {
 
   const [account, setAccount] = React.useState(false);
 
@@ -78,8 +78,8 @@ export function RegistrationForm() {
 
     /** REDUCER HANDLES USE STATES */
     const [formData, dispatchFormData] = React.useReducer(
-      registerReducer,
-      {data: {} as Registration, isLoading: false, isError: false}
+      passwordReducer,
+      {data: {} as Password, isLoading: false, isError: false}
     );
 
   const form = useForm({
@@ -97,14 +97,14 @@ export function RegistrationForm() {
     },
   });
 
-    const registerUser = (values: Registration) => {
+    const registerUser = (values: Password) => {
       dispatchFormData({
         type: 'FORM_DATA_FETCH_INIT',
       });
         axios.post('http://192.168.2.216:5000/signup', {
             email: values.email,
             password: values.password,
-            forgot: false
+            forgot: true,
         })
         .then(function (response) {
              console.log(response);
@@ -141,8 +141,8 @@ export function RegistrationForm() {
   <>
    {account && <>
     <Box maw={300} mx="auto">
-    <Alert icon={<IconAlertCircle size="1rem" />} title="Account created!" color="blue">
-      Your account was created! An email has been sent to you!
+    <Alert icon={<IconAlertCircle size="1rem" />} title="Account updated!" color="blue">
+      Your account was updated! An email has been sent to you!
     </Alert>
     <br></br>
     </Box>
@@ -164,7 +164,7 @@ export function RegistrationForm() {
           <TextInput
             withAsterisk
             label="Email"
-            placeholder="your@email.com"
+            placeholder="test@email.com"
             {...form.getInputProps('email')}
           />
           <PasswordInput

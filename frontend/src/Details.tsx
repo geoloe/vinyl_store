@@ -283,7 +283,11 @@ const Details = () => {
 
       if(localStorage.getItem('wantlist')?.includes(id.toString())){
         setActive(false);
-        items = items.filter(i => i.id !== id);
+
+        console.log("Item Found!!")
+        items = items.filter(i => i.id.toString() !== id.toString())
+
+        console.log(items)
 
         let wantlist: MyWantlist = {
           [user]: items
@@ -385,7 +389,6 @@ const Details = () => {
     function checkWantlist(id: number) {
       if(localStorage.getItem('wantlist')?.includes(id.toString())){
         setActive(true);
-        console.log("ID DOUNF!!!!:", active)
       }else{
         setActive(false);
       }

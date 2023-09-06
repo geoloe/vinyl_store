@@ -9,6 +9,7 @@ import { Login } from './Login'
 import App from './App'
 import { Welcome } from './Landing'
 import { RegistrationForm } from './Components/RegistrationForm'
+import { RegistrationPassword } from './Components/RegistrationPassword'
 
 
 const router = createBrowserRouter([
@@ -33,7 +34,11 @@ const router = createBrowserRouter([
             },
             {
                 path: 'signup',
-                element: <RegistrationForm></RegistrationForm>
+                element: <RegistrationForm></RegistrationForm>,
+            },
+            {
+                path: 'forgot',
+                element: <RegistrationPassword></RegistrationPassword>
             },
             {
                 path: 'login/?oauth_token=:OAuthToken?oauth_verifier=:oAuthVerifier',

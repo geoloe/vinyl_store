@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import axios from 'axios';
 import { CardItem } from './Card';
 import { ActionIcon, Header} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconVinyl, IconLogin, IconDashboard } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
+import { IconVinyl, IconLogin, IconDashboard, IconDeviceFloppy } from '@tabler/icons-react';
 import {
   createStyles,
   Container,
@@ -154,6 +156,39 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
       {link.label}
     </a>
   ));
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const wantlistUser = async ()  => {
+    try{
+      const data = {
+        wantlist: wl
+      }
+      const result = await axios.post('http://192.168.2.216:5000/wantlist', data, { 
+        })
+      //Convert JSON to Vinyl and Pagination type
+      const res: MyWantlist = result.data;
+
+      console.log(res)
+
+
+    } catch (error: any) { 
+      if(error.response){
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+        setErrorMessage(error.response.status.toString() + ' ' + error.response.data.error.toString());
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log("No response", error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+      }
+  };
+}
+
 
   const {
     isEmpty,
@@ -196,11 +231,27 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
                   </Text>
               </Group>
             </Button>
-            <Button variant='subtle' fullWidth onClick={() => {localStorage.setItem('user', ''); window.location.reload()}}>
+            <Button variant='subtle' component={Link} to="/" fullWidth onClick={() => {{localStorage.setItem('user', '');localStorage.setItem('wantlist', '[]');  window.location.reload()}}}>
               <Group spacing={7}>
               <IconLogout size="0.9rem" stroke={1.5} />
               <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
                     Logout
+                  </Text>
+              </Group>
+            </Button>
+            <Button component={Link} to="/forgot" variant='subtle' color='grey' fullWidth >
+              <Group spacing={7}>
+              <IconSettings size="0.9rem" stroke={1.5} />
+              <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                    Change password
+                  </Text>
+              </Group>
+            </Button>
+            <Button variant='subtle' color='red' fullWidth >
+              <Group spacing={7}>
+              <IconTrash size="0.9rem" stroke={1.5} />
+              <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
+                    Delete account
                   </Text>
               </Group>
             </Button>
@@ -244,12 +295,18 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
       <Drawer opened={abierto} onClose={close} title={`Wantlist for ${currentUser}`}>
       
       <List>
-        {wantlistItems !== undefined ? ( wantlistItems.length == 0 ? (
+        {wantlistItems !== undefined ? ( wantlistItems.length === 0 ? (
                   <>
                   <List.Item>No items in wantlist</List.Item>
                   </>
         ):(
           <>
+          <Button onClick={() => 
+                            {notifications.show({
+                              title: 'Hurray!',
+                              message: 'Your wantlist has been saved.',
+                            }); wantlistUser();}} leftIcon={<IconDeviceFloppy size="1rem" />}>Save wantlist</Button>
+          <br></br><br></br>
           {wantlistItems.map((item) => (
             <CardItem id={item.id} name={item.name} price={item.price} count={item.count} image={item.image}/>
           ))}
@@ -308,10 +365,10 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               </Menu.Item>
 
               <Menu.Label>Settings</Menu.Label>
-              <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />}>
-                Account settings
+              <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />} component={Link} to="/forgot">
+                Change Password
               </Menu.Item>
-              <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />} onClick={() => {localStorage.setItem('user', ''); window.location.reload()}}>Logout</Menu.Item>
+              <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />} component={Link} to="/" onClick={() => {localStorage.setItem('user', '');localStorage.setItem('wantlist', '[]');  window.location.reload()}}>Logout</Menu.Item>
 
               <Menu.Divider />
 

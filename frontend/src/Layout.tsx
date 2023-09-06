@@ -6,6 +6,8 @@ import { CartProvider } from 'react-use-cart';
 import { Notifications } from '@mantine/notifications';
 import './css/margins.css'
 import { useCart } from "react-use-cart";
+import * as React from 'react';
+
 
 export function handleItemsToBuy(){
     // Grey out items after adding them in the shopping cart
@@ -40,6 +42,9 @@ export const Layout = () => {
     
       const tabs: string[] = ["About"]
 
+      //set remove and add to wantlist toggle
+      const [active, setActive] = React.useState(false);
+
       const user = { name: localStorage.getItem('user'), 
       image: 'https://avatars.steamstatic.com/a55b513e39410f2ac350958b127fcedbba830e5a_full.jpg' }
 
@@ -59,7 +64,7 @@ return (
                   </footer>          
 
                   </CartProvider>
-              </ThemeProvider>
+        </ThemeProvider>
 
     </div>
     </>

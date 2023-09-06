@@ -2,10 +2,11 @@ import { TextInput, Checkbox, Button, Group, Box, PasswordInput, Alert } from '@
 import { useForm } from '@mantine/form';
 import axios from 'axios';
 import {useNavigate} from "react-router-dom";
-import { useStorageState } from '../App';
+import { MyWantlist, useStorageState } from '../App';
 import { UserData } from '../Login';
 import { IconAlertCircle } from '@tabler/icons-react'
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 
 interface Login {
     email: string,
@@ -14,7 +15,11 @@ interface Login {
 }
 
 
+
+
 export function LoginForm() {
+
+  const inputRef = React.useRef<HTMLButtonElement>(null)
 
   const [errorMessage, setErrorMessage] = React.useState('');
 
@@ -46,7 +51,7 @@ export function LoginForm() {
 
         setUser(res.email)
 
-        window.location.reload();
+        inputRef.current!.click();
 
       } catch (error: any) { 
         if(error.response){
@@ -66,6 +71,39 @@ export function LoginForm() {
     };
   }
 
+  const getWantlist = async ()  => {
+    try{
+      const data = {
+        email: user
+      }
+      const result = await axios.post('http://192.168.2.216:5000/get_wantlist', data, { 
+        })
+      //Convert JSON to Vinyl and Pagination type
+      const res: MyWantlist = result.data;
+
+      console.log(res)
+
+      localStorage.setItem("wantlist", JSON.stringify(res));
+      
+      window.location.reload();
+    } catch (error: any) { 
+      if(error.response){
+        console.log(error.response.data);
+        console.log(error.response.status);
+        console.log(error.response.headers);
+        setErrorMessage(error.response.status.toString() + ' ' + error.response.data.error.toString());
+      } else if (error.request) {
+        // The request was made but no response was received
+        // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+        // http.ClientRequest in node.js
+        console.log("No response", error.request);
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        console.log('Error', error.message);
+      }
+  };
+}
+
   console.log(form.values);
   return (
     <>
@@ -76,7 +114,7 @@ export function LoginForm() {
     }
     <br></br>
     <Box maw={300} mx="auto">
-      <form onSubmit={form.onSubmit((values) => loginUser(values))}>
+      <form onSubmit={form.onSubmit((values) => {loginUser(values); getWantlist()})}>
         <TextInput
           withAsterisk
           label="Email"
@@ -96,7 +134,8 @@ export function LoginForm() {
         />
 
         <Group position="right" mt="md">
-          <Button type="submit">Login</Button>
+          <Button ref={inputRef} type="submit">Login</Button>
+          <Button component={Link} to="/forgot" >Forgot password</Button>
         </Group>
       </form>
     </Box>
