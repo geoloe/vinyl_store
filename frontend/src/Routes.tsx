@@ -10,6 +10,7 @@ import App from './App'
 import { Welcome } from './Landing'
 import { RegistrationForm } from './Components/RegistrationForm'
 import { RegistrationPassword } from './Components/RegistrationPassword'
+import { Dashboard } from './Dashboard'
 
 
 const router = createBrowserRouter([
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
                 element: <App/>
             },
             {
-                path: 'details/:releaseId/:priceId',
+                path: 'details/:releaseId/:priceId/:statusId',
                 element: <Details/>
             },
             {
@@ -43,6 +44,10 @@ const router = createBrowserRouter([
             {
                 path: 'login/?oauth_token=:OAuthToken?oauth_verifier=:oAuthVerifier',
                 element: <Welcome/>
+            },
+            {
+                path: 'dashboard',
+                element:  <Dashboard></Dashboard>
             }                
         ]
     },

@@ -26,6 +26,7 @@ export function UserInfoIcons({ avatar, name, title, phone, email }: UserInfoIco
     <div>
       <Group noWrap>
         <div>
+          <Avatar src={avatar}></Avatar>
           <Text fz="xs" tt="uppercase" fw={700} c="dimmed">
             {title}
           </Text>

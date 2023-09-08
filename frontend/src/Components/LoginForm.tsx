@@ -14,7 +14,9 @@ interface Login {
     termsOfService: boolean,
 }
 
-
+function timeout(delay: number) {
+  return new Promise( res => setTimeout(res, delay) );
+}
 
 
 export function LoginForm() {
@@ -49,9 +51,14 @@ export function LoginForm() {
         //Convert JSON to Vinyl and Pagination type
         const res: UserData = result.data;
 
+        console.log(res)
+
         setUser(res.email)
 
-        inputRef.current!.click();
+        inputRef.current!.click()
+
+        await getWantlist();
+
 
       } catch (error: any) { 
         if(error.response){
@@ -114,7 +121,7 @@ export function LoginForm() {
     }
     <br></br>
     <Box maw={300} mx="auto">
-      <form onSubmit={form.onSubmit((values) => {loginUser(values); getWantlist()})}>
+      <form onSubmit={form.onSubmit((values) => {loginUser(values); })}>
         <TextInput
           withAsterisk
           label="Email"

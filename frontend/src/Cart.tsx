@@ -2,7 +2,6 @@ import { useCart } from "react-use-cart";
 import { Divider, Button, SimpleGrid, Alert, Title, Accordion, Image, Text, Badge, Box} from "@mantine/core";
 import { IconTrash, IconSquareX, IconAlertCircle} from '@tabler/icons-react';
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
 import * as React from 'react';
 
 import {

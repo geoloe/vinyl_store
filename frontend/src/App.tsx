@@ -14,14 +14,17 @@ import { notifications } from '@mantine/notifications';
 import { handleItemsToBuy } from './Layout';
 import { NotFoundTitle } from './Components/Error';
 import { ReactSearchAutocomplete } from 'react-search-autocomplete'
-import MantineSearchBar from './Components/SearchBar';
 import { useNavigate } from 'react-router-dom';
+import fetchAll from './Fetch';
+import { Search } from 'tabler-icons-react';
 
 
 
 /*Object Defs*/
 
-const discogs_api_token: string = import.meta.env.VITE_DISCOGS_API_KEY;
+export const discogs_api_token: string = import.meta.env.VITE_DISCOGS_API_KEY;
+
+
 type SearchObj = {
   thumbnail:      string;
   description:    string;
@@ -36,6 +39,7 @@ type SearchObj = {
   catalog_number: string;
   stats:          ReleaseStats;
   price:          Price;
+  status:         string;
 }
 
 //Steam Objects
@@ -250,7 +254,6 @@ export type InputWithLabelProps = {
   value: string;
   type?: string;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  isFocused?: boolean;
   children: React.ReactNode;
 }
 
@@ -314,6 +317,7 @@ export type myItem = {
   price: number;
   count: number;
   image: string;
+  status: string;
 }
 
 const API_ENDPOINT = 'https://api.discogs.com/users/ssrl4000/inventory?per_page='; 
@@ -358,11 +362,11 @@ const vinylsReducer = (
 
 export function removeWantlistItem(id: number){
   let wl: MyWantlist = JSON.parse(localStorage.getItem("wantlist") || "[]");
-  console.log("wantlist", wl)
+  //console.log("wantlist", wl)
 
   let user: string | null = localStorage.getItem("user")!;
 
-  console.log(user)
+  //console.log(user)
 
   let items: myItem[] = wl[user];
 
@@ -423,7 +427,7 @@ const App = () => {
     });
     
     try {
-      console.log('New API URL: ' + urlDiscogs);
+      //console.log('New API URL: ' + urlDiscogs);
       const result = await axios.get(urlDiscogs, {
         headers :
          { 'Authorization': 'Discogs token=' + discogs_api_token }
@@ -443,13 +447,27 @@ const App = () => {
     }
   }, [urlDiscogs]);
 
+////Get the whole catalogue
+  let searchResults: Listing[];
+  vinyls.isLoading, vinyls.isError, searchResults = fetchAll();
+
+
+    //Delete duplicates
+  const uniqueResults = [...new Map(searchResults.map(v => [v.id, v])).values()]
+////Get the whole catalog
+
+
+
+  //console.log("Whole Catalogue:", uniqueResults)
+
   let filteredVinyls = vinyls.data.filter(function (vinyl){   
    if (vinyl.release !== undefined){
-    return vinyl.release.title.toLowerCase().includes(searchTerm.toLowerCase());
+    return vinyl.release.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    vinyl.release.artist.toLowerCase().includes(searchTerm.toLowerCase());
    }
    else{
-   console.log("Undefined");
-    console.log(vinyl);
+   //console.log("Undefined");
+    //console.log(vinyl);
    }
   });
 
@@ -592,31 +610,31 @@ const App = () => {
   const handleOnSearch = (string: string, results: SearchObj[]) => {
     // onSearch will have as the first callback parameter
     // the string searched and for the second the results.
-    console.log(string, results)
+    //console.log(string, results)
   }
 
   const handleOnHover = (result: SearchObj) => {
     // the item hovered
-    console.log(result)
+    //console.log(result)
   }
 
   const handleOnSelect = (item: SearchObj) => {
     // the item selected
-    navigate(`/details/${item.id}/${item.price.value}`);
-    console.log(`/details/${item.id}/${item.price.value}`)
+    navigate(`/details/${item.id}/${item.price.value}/${item.status}`);
+    //console.log(`/details/${item.id}/${item.price.value}/${item.status}`)
   }
 
   const handleOnFocus = () => {
-    console.log('Focused')
+    //console.log('Focused')
   }
 
   const formatResult = (item: SearchObj) => {
     return (
       <>
-          <div id='front2'>
+          <div>
             <span style={{ display: 'block', textAlign: 'left' }}><Image src={item.thumbnail} width={60} height={60}></Image></span>
-            <span style={{ display: 'block', textAlign: 'left' }}>{item.artist}</span>
-            <span style={{ display: 'block', textAlign: 'left' }}>{item.title}</span>
+            <span style={{ display: 'block', textAlign: 'left' }}><Text>{item.artist} - {item.title}</Text></span>
+            <span style={{ display: 'block', textAlign: 'left' }}><Text c="dimmed">{item.format}</Text></span>
           </div>
       </>
     )
@@ -624,13 +642,17 @@ const App = () => {
 
  ////////// Search /////////////
  // Flatten Release array
-    const results: any = vinyls.data.flatMap(
+    const results: any = uniqueResults.flatMap(
       (elem) => (elem.release)
     )
   // Flatten price Array
-    const price: any = vinyls.data.flatMap(
+    const price: any = uniqueResults.flatMap(
       (elem) => (elem.price)
     )
+  // Flatten status Array
+  const status: any = uniqueResults.flatMap(
+    (elem) => (elem.status)
+  )
       ///Create Search Object for Item search bar
     function appendObjectAsAttribute(arr: any[], attributeName: string, objToAppend: any): any[] {
       // Make a copy of the original array to avoid modifying it directly
@@ -644,16 +666,61 @@ const App = () => {
       return newArr;
     }
     const newArray: SearchObj[] = appendObjectAsAttribute(results, 'price', price);
+    const Search: SearchObj[] = appendObjectAsAttribute(newArray, 'status', status);
+
  ////////// Search /////////////
   return (
     <>
-    <UserInfoIcons 
-    avatar="https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg" 
-    name={'Julian Eggers'} 
-    title={'Music Entrepeneur'} 
-    phone={'https://www.discogs.com/user/ssrl4000'} 
-    email={'https://api.discogs.com/users/ssrl4000'}>
-    </UserInfoIcons>
+
+
+    <SimpleGrid cols={3}
+                  spacing="lg"
+                  breakpoints={[
+                    { maxWidth: 'md', cols: 3, spacing: 'md' },
+                    { maxWidth: 'sm', cols: 2, spacing: 'sm' },
+                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
+        ]}>
+        <div>
+          <Group>
+        <UserInfoIcons 
+          avatar="https://i.discogs.com/VhvI_YMO6QPx9K39LK3GEmqI54a65OlhgJLI8ZEWPIQ/rs:fill/g:sm/q:40/h:500/w:500/czM6Ly9kaXNjb2dz/LXVzZXItYXZhdGFy/cy9VLTMzNTg0OTYt/MTU5NzMwNDc4MS5q/cGVn.jpeg" 
+          name={'Julian Eggers'} 
+          title={'Music Entrepeneur'} 
+          phone={'https://www.discogs.com/user/ssrl4000'} 
+          email={'https://api.discogs.com/users/ssrl4000'}>
+          </UserInfoIcons>
+        
+        <UserInfoIcons 
+          avatar="https://avatars.steamstatic.com/a55b513e39410f2ac350958b127fcedbba830e5a_full.jpg" 
+          name={'Georg Löffler'} 
+          title={'Music Entrepeneur & Developer'} 
+          phone={'https://www.discogs.com/user/geoloe'} 
+          email={'https://api.discogs.com/users/geoloe'}>
+          </UserInfoIcons>
+          </Group>
+        </div>
+        <Center>
+        <div id="front2" style={{ width: 350 }}>
+        {vinyls.isLoading && <div><Center><Text c="dimmed">Fetching whole catalogue... Please wait...</Text></Center><Center><Loader variant="dots" />;</Center></div>}
+              <ReactSearchAutocomplete
+                autoFocus
+                items={Search}
+                onSearch={handleOnSearch}
+                onHover={handleOnHover}
+                onSelect={handleOnSelect}
+                onFocus={handleOnFocus}
+                fuseOptions={{ keys: ["id", "description"] }}
+                resultStringKeyName="artist"
+                formatResult={formatResult}
+                maxResults={3}
+                placeholder={"Search catalogue..."}
+              />
+        </div>
+        </Center>
+        <div>
+        </div>
+      </SimpleGrid>
+
     <HeroImageRight></HeroImageRight>
     <Tabs defaultValue="vinyls">
       <Tabs.List>
@@ -662,33 +729,6 @@ const App = () => {
       </Tabs.List>
 
       <Tabs.Panel value="vinyls" pt="xs">
-        
-      <SimpleGrid cols={3}
-                  spacing="lg"
-                  breakpoints={[
-                    { maxWidth: 'md', cols: 3, spacing: 'md' },
-                    { maxWidth: 'sm', cols: 2, spacing: 'sm' },
-                    { maxWidth: 'xs', cols: 1, spacing: 'sm' },
-        ]}>
-        <div>
-
-        </div>
-        <div style={{ width: 400 }}>
-              <ReactSearchAutocomplete
-                items={newArray}
-                onSearch={handleOnSearch}
-                onHover={handleOnHover}
-                onSelect={handleOnSelect}
-                onFocus={handleOnFocus}
-                fuseOptions={{ keys: ["id", "description"] }}
-                resultStringKeyName="artist"
-                formatResult={formatResult}
-                maxResults={1}
-              />
-            </div>
-        <div>
-        </div>
-      </SimpleGrid>
 
 
       <Grid >
@@ -714,8 +754,8 @@ const App = () => {
                     { maxWidth: 'xs', cols: 1, spacing: 'sm' },
                   ]}>
                   <Grid.Col span="content">
-                      <Text align='center' fw={800}>Filter Options</Text>
-                      <Text align='left'>Filter by Title</Text>                                            
+                      <Text align='center' fw={800}>Filter Page Options</Text>
+                      <Text align='left'>Filter by Title and or Artist</Text>                                            
                       <Center maw={400} h={100} mx="auto">
                         <SearchForm 
                                 searchTerm={searchTerm}
@@ -875,7 +915,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
       type='text'
       value={searchTerm}
       onInputChange={onSearchInput}
-      isFocused
+      
     >
       <strong>Search:</strong>
     </InputWithLabel>
@@ -899,7 +939,7 @@ export const List: React.FC<ListProps> = ({ list, range, page, onRemoveItem, onP
 const [sort, setSort] = React.useState('NONE');
 
 const handleSort = (event: React.ChangeEvent<HTMLSelectElement>) => {
-  console.log(event.target.value);
+  //console.log(event.target.value);
   setSort(event.target.value);
 };
 
@@ -913,6 +953,7 @@ for(let i:number = 0; i < sortedList.length; i++){
     sortedListWithYear.push(sortedList[i]);
   }
 }
+
 
 return (
   <>
@@ -1056,11 +1097,13 @@ return (
               >
             {sortedListWithYear.map((item, index) => (
               <>
+              <div >
                 <div key={item.release.id}> 
                   <Item key={item.id} index={index} item={item} onRemoveItem={onRemoveItem} addItem={addItem}>
                     <DeleteButton key={index} name={item.release.title} type="button" value='Dismiss' index={index} removeItem={onRemoveItem} item={item}></DeleteButton>
                   </Item>
                 </div>
+              </div>
               </>
             ))}  
                  
@@ -1198,9 +1241,11 @@ export const Item: React.FC<ItemProps> = ({ item, index, onRemoveItem, addItem
 
 return (
     <>
-      <CarouselCard key={item.resource_url} item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} addItem={addItem}>
+    <div >
+    <CarouselCard key={item.resource_url} item={item} index={index} onRemoveItem={onRemoveItem} new_record={new_record} addItem={addItem}>
 
-      </CarouselCard>
+    </CarouselCard>
+    </div>
     </>
 );};
 
@@ -1337,7 +1382,7 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
         <Button radius="md" disabled >Buy now</Button>
         ) : (
           <>
-          <Link to={`details/${item.release.id}/${item.price.value}`}>Details</Link>
+          <Link to={`details/${item.release.id}/${item.price.value}/${item.status}`}>Details</Link>
           <Button name={`${s.id}`} leftIcon={<IconShoppingCart size="1rem" />} radius="md" onClick={() => 
              {notifications.show({
               title: 'Awesome!',
@@ -1355,17 +1400,12 @@ const InputWithLabel: React.FC<InputWithLabelProps> = ({
   type,
   value,
   onInputChange,
-  isFocused,
   children
 }) => {
 
 const inputRef = React.useRef<HTMLInputElement>(null);
 
-  React.useEffect(() => {
-    if (isFocused && inputRef.current){
-      inputRef.current.focus();
-    }
-  }, [isFocused]);
+
 
   return(
     <React.Fragment>

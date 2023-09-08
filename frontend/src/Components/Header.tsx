@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { CardItem } from './Card';
+import { spotlight } from '@mantine/spotlight';
 import { ActionIcon, Header} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { IconVinyl, IconLogin, IconDashboard, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconVinyl, IconLogin, IconDashboard, IconDeviceFloppy, IconHomeSearch } from '@tabler/icons-react';
 import {
   createStyles,
   Container,
@@ -223,7 +224,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
                   </Text>
               </Group>
             </Button>
-            <Button variant='subtle' fullWidth>
+            <Button variant='subtle' fullWidth component={Link} to={`/dashboard`}>
               <Group spacing={7}>
               <IconDashboard size="0.9rem" stroke={1.5} />
                   <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
@@ -231,7 +232,13 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
                   </Text>
               </Group>
             </Button>
-            <Button variant='subtle' component={Link} to="/" fullWidth onClick={() => {{localStorage.setItem('user', '');localStorage.setItem('wantlist', '[]');  window.location.reload()}}}>
+            <Button variant='subtle' component={Link} to="/" fullWidth onClick=
+            {() => 
+              {notifications.show({
+                title: 'Logged out!',
+                message: 'You are logged out.',
+              }); localStorage.setItem('user', '');localStorage.setItem('wantlist', '[]');}} 
+                    >
               <Group spacing={7}>
               <IconLogout size="0.9rem" stroke={1.5} />
               <Text weight={500} size="sm" sx={{ lineHeight: 1 }} mr={3}>
@@ -269,11 +276,11 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
           )}
         </Transition>
         <Burger opened={opened} onClick={toggle} className={classes.burger} size="sm" />
-            <Link to='/'>
-            <ActionIcon size="xl" radius="xl">
-                  <IconVinyl size="2.125rem" />
-                </ActionIcon>
-            </Link>
+        {localStorage.getItem('user')?.length != 0 &&
+            <ActionIcon size="xl" radius="xl" onClick={spotlight.open}>
+            <IconHomeSearch size="2.125rem" />
+            </ActionIcon>
+          }
             <Link to='cart'>
               {isEmpty ? (
               <Indicator inline disabled size={12}>
@@ -289,7 +296,10 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               </Indicator>
               )}
             </Link>
-            <SwitchToggle></SwitchToggle>
+            
+
+
+
     {localStorage.getItem('user')?.length != 0 ? (
       <>
       <Drawer opened={abierto} onClose={close} title={`Wantlist for ${currentUser}`}>
@@ -308,7 +318,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
                             }); wantlistUser();}} leftIcon={<IconDeviceFloppy size="1rem" />}>Save wantlist</Button>
           <br></br><br></br>
           {wantlistItems.map((item) => (
-            <CardItem id={item.id} name={item.name} price={item.price} count={item.count} image={item.image}/>
+            <CardItem id={item.id} name={item.name} price={item.price} count={item.count} image={item.image} status={item.status}/>
           ))}
           </>
         ))      
@@ -349,7 +359,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
             </Menu.Target>
             <Menu.Dropdown>
               <Menu.Item
-                icon={<IconDashboard size="0.9rem" color={theme.colors.red[6]} stroke={1.5} />}
+                icon={<IconDashboard size="0.9rem" color={theme.colors.red[6]} stroke={1.5} />} component={Link} to={`/dashboard`}
               >
                 Dashboard
               </Menu.Item>
@@ -368,7 +378,14 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
               <Menu.Item icon={<IconSettings size="0.9rem" stroke={1.5} />} component={Link} to="/forgot">
                 Change Password
               </Menu.Item>
-              <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />} component={Link} to="/" onClick={() => {localStorage.setItem('user', '');localStorage.setItem('wantlist', '[]');  window.location.reload()}}>Logout</Menu.Item>
+              <Menu.Item icon={<IconLogout size="0.9rem" stroke={1.5} />} component={Link} to="/" onClick=
+              {() => 
+                {notifications.show({
+                  title: 'Logged out!',
+                  message: 'You are logged out.',
+                }); localStorage.setItem('user', '');localStorage.setItem('wantlist', '[]');}} 
+                      >
+                Logout</Menu.Item>
 
               <Menu.Divider />
 
@@ -387,6 +404,7 @@ export function HeaderSimple({ links, user, tabs}: HeaderSimpleProps) {
           </Link>
         )
         }
+        <SwitchToggle></SwitchToggle>
 
       </Container>
     </Header>

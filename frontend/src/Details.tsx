@@ -1,11 +1,11 @@
 import { useParams } from "react-router-dom";
 import * as React from 'react';
 import axios from 'axios';
-import { AspectRatio, Box, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button, Transition, Affix, rem} from '@mantine/core';
+import { List, ThemeIcon, Tooltip, Center, Loader, SimpleGrid, Title, Divider, Container, Flex, Button, Transition, Affix, rem} from '@mantine/core';
 import { Carousel } from "@mantine/carousel";
 import { StatsRing } from "./Components/Stats";
 import { Timeline, Text } from '@mantine/core';
-import { IconGitBranch, IconGitPullRequest, IconGitCommit, IconArrowUp } from '@tabler/icons-react';
+import { IconGitBranch, IconGitCommit, IconArrowUp, IconAlarm, IconFileDescription, IconGenderTrasvesti, IconHandRock } from '@tabler/icons-react';
 import { ShoppingCart } from 'tabler-icons-react';
 import { Star } from 'tabler-icons-react';
 import { ShoppingItem } from "./App";
@@ -179,10 +179,6 @@ type ImagesProps = {
   item: any;
 }
 
-type InfosProps = {
-    item: any;
-}
-
 type VideosProps = {
     item: any;
   }
@@ -256,7 +252,7 @@ const Details = () => {
   //set remove and add to wantlist toggle
   const [active, setActive] = React.useState(false);
 
-  function handleWantlist(id: number, name: string, price: number, images:string){
+  function handleWantlist(id: number, name: string, price: number, images:string, status:string){
 
     let wl: MyWantlist = JSON.parse(localStorage.getItem("wantlist") || "[]");
     console.log("wantlist", wl)
@@ -297,7 +293,7 @@ const Details = () => {
       }
       else{
         console.log("Found user... adding items")
-        items.push({id: id, name: name, price: price, count: 1, image: images});
+        items.push({id: id, name: name, price: price, count: 1, image: images, status: status});
         setActive(true);
 
         let wantlist: MyWantlist = {
@@ -325,6 +321,8 @@ const Details = () => {
     params.releaseId.toString();
     const price = params.priceId === undefined ? undefined :
     params.priceId.toString();
+    const status = params.statusId === undefined ? undefined :
+    params.statusId.toString();
     console.log(params)
     console.log("Rendering details.tsx")
 
@@ -464,24 +462,45 @@ return (
                 {releases.data.formats?.map((item) => (  
                             <>
 
-                            <Timeline active={3} bulletSize={24} lineWidth={2}>
+                            <Timeline active={5} bulletSize={24} lineWidth={2}>
                             
                             <Timeline.Item bullet={<IconGitBranch size={12} />} title="Type">
                             <Text color="dimmed" size="sm">{item.name}</Text>
                             </Timeline.Item>
                     
                             <Timeline.Item bullet={<IconGitCommit size={12} />} title="Quantity">
-                            <Text color="dimmed" size="sm">This item has {item.qty} copy(ies)<Text variant="link" component="span" inherit></Text></Text>
+                            {status !== 'For Sale' ? (
+                            <Text color="dimmed" size="sm">This item is {status} <Text variant="link" component="span" inherit></Text></Text>
+                            ): (
+                              <Text color="dimmed" size="sm">This item has {item.qty} copy(ies)<Text variant="link" component="span" inherit></Text></Text>
+                            )}
                             <Text size="xs" mt={4}>Item was added: <br></br> {releases.data.date_added.toString()}</Text>
                             </Timeline.Item>
                             
-                            <Timeline.Item title="Description" bullet={<IconGitPullRequest size={12} />} lineVariant="dashed">
+                            <Timeline.Item title="Description" bullet={<IconFileDescription size={12} />}>
                             <Text color="dimmed" size="sm">{item.descriptions.toString()}<Text variant="link" component="span" inherit> Released in {releases.data.country} in {releases.data.year}</Text></Text>
                             </Timeline.Item>
+
+                            <Timeline.Item title="Genres" bullet={<IconGenderTrasvesti size={12} />}>
+                            {releases.data.genres?.map((item) =>(
+                              <>
+                                <Text color="dimmed" size="sm"><Text variant="link" component="span" inherit>{item}</Text></Text>
+                              </>
+                            ))}
+                            </Timeline.Item>
+                            <Timeline.Item title="Styles" bullet={<IconHandRock size={12} />}>
+                            {releases.data.styles?.map((item) =>(
+                              <>
+                                <Text color="dimmed" size="sm"><Text variant="link" component="span" inherit>{item}</Text></Text>
+                              </>
+                            ))}
+                            </Timeline.Item>
                             </Timeline>
+                            
 
                             </>
                             ))}
+
                     </div>
                 </SimpleGrid>
             </>
@@ -500,25 +519,40 @@ return (
                 <br></br>
                 <Flex gap="md">
                     <Title order={2}>{price} €</Title>
+                    {status === 'For Sale' ? (
                         <Button name={`${id}`} leftIcon={<ShoppingCart size="1rem" />} onClick={() => 
                           {notifications.show({
                            title: 'Awesome!',
                            message: 'Your item has been added to your shopping cart! 🤥',
-                         }); addItem(s);}}>Add to cart</Button> 
+                         }); addItem(s);}}>Add to cart</Button>                       
+                    ) : (
+                      <>
+                      <Button name={`${id}`} leftIcon={<ShoppingCart size="1rem" />} disabled onClick={() => 
+                        {notifications.show({
+                         title: 'Awesome!',
+                         message: 'Your item has been added to your shopping cart! 🤥',
+                       }); addItem(s);}}>Add to cart</Button> 
+                      <Tooltip color="grey" label="Notify me if item is in stock again!" position="bottom"      
+                          withArrow
+                          arrowPosition="center">
+                        <Button><IconAlarm></IconAlarm></Button>
+                      </Tooltip>
+                       </>
+                    )}
                          {localStorage.getItem('user')?.length != 0 ? ( !active ? (
                           <Button leftIcon={<Star size="1rem" />} onClick={() => 
                             {notifications.show({
                               title: 'Nice!',  
                               message: 'Item was added to your wantlist! Under your name you can find it',
-                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url);}}
-                            >{ !active ? "Add to Wantlist " : "Remove from Wantlist"}</Button>  
+                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url, status);}}
+                            >{ !active ? "To Wantlist " : "Remove from Wantlist"}</Button>  
                          ) : (
                           <Button leftIcon={<Star size="1rem" />} onClick={() => 
                             {notifications.show({
                               title: 'Nice!',  
                               message: 'Item was removed from your wantlist!',
-                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url);}}
-                            >{ !active ? "Add to Wantlist " : "Remove from Wantlist"}</Button>  
+                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url, status);}}
+                            >{ !active ? "To Wantlist " : "Remove from Wantlist"}</Button>  
                          )
                        
                             )
@@ -528,8 +562,8 @@ return (
                             {notifications.show({
                               title: 'Oh oh!',
                               message: 'Please sign in to add items to your wantlist',
-                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url);}}
-                            >{ !active ? "Add to Wantlist " : "Remove from Wantlist"}</Button>
+                            }); handleWantlist(id, releases.data.title, price, releases.data.images[0].resource_url, status);}}
+                            >{ !active ? "To Wantlist " : "Remove from Wantlist"}</Button>
                          )}
                 </Flex>
             </div>
@@ -550,8 +584,30 @@ return (
             <div>
                 <Title>Statistics</Title>
                 <StatsRing data={data}></StatsRing>
+                <br></br>
+                <Title>Videos</Title>
+                <List
+                  spacing="xs"
+                  size="sm"
+                  center
+                  icon={
+                    <ThemeIcon color="blue" size={20} radius="xl">
+                      <IconHandRock size="1rem" />
+                    </ThemeIcon>
+                  }
+                >
+                {releases.data.videos?.map((item) => (
+                    <>
+                        <Videos item={item}></Videos>
+                    </>
+                ))}                   
+                </List>
+
             </div>
-            <div></div>
+            <div>
+
+
+            </div>
           </SimpleGrid>
 
         )}
@@ -572,7 +628,6 @@ return (
             </Affix>
     </>
 );};
-
 const Images: React.FC<ImagesProps> = ({item}) =>
   (  
     <>
@@ -583,14 +638,7 @@ const Images: React.FC<ImagesProps> = ({item}) =>
 const Videos: React.FC<VideosProps> = ({item}) =>
   (  
     <>
-        <AspectRatio ratio={16 / 9}>
-        <iframe
-            src={item.uri}
-            title={item.title}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-        />
-        </AspectRatio>
+          <List.Item><a href={item.uri} target="_blank">{item.title}</a></List.Item>
     </>
   );
 
@@ -603,7 +651,7 @@ const Videos: React.FC<VideosProps> = ({item}) =>
             Side {item.position}
             </div>
             <div style={{display: 'flex', justifyContent:'start'}}>
-            {item.title} 
+            {item.title}
             </div>
             <div style={{display: 'flex', justifyContent:'flex-end'}}>
             {item.duration}

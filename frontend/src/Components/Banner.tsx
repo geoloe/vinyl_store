@@ -102,7 +102,7 @@ export function HeroImageRight() {
                 variant="gradient"
                 gradient={{ from: 'pink', to: 'yellow' }}
               >
-                Jules Vinyls
+                JGs Vinyls
               </Text>{' '}
               where vinyls are the cheapest and best.
             </Title>
@@ -111,7 +111,7 @@ export function HeroImageRight() {
               Don't miss anything.
             </Text>
 
-            <Button
+            <Button 
               variant="gradient"
               gradient={{ from: 'pink', to: 'yellow' }}
               size="xl"

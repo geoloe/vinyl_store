@@ -8,9 +8,10 @@ export type CardItemProps = {
     price: number;
     count: number;
     image: string;
+    status: string;
   }
 
-export const CardItem: React.FC<CardItemProps> = ({id, name, price, count, image}) => {
+export const CardItem: React.FC<CardItemProps> = ({id, name, price, count, image, status}) => {
   return (
     <>
     <Card shadow="xl" padding="lg" radius="lg" withBorder>
@@ -30,7 +31,7 @@ export const CardItem: React.FC<CardItemProps> = ({id, name, price, count, image
       </Group>
 
       <Text size="sm" color="dimmed">
-        <Link to={`details/${id}/${price}`}>{name}</Link>
+        <Link to={`details/${id}/${price}/${status}`}>{name}</Link>
       </Text>
 
       <Button variant="light" color="blue" fullWidth mt="md" radius="md" onClick={() => {removeWantlistItem(id); close(); window.location.reload()}}>Remove item</Button>
