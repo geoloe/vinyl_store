@@ -123,7 +123,7 @@ export const Cart = () => {
 
   const itemRows = items.map((element) => (
   <Accordion.Item value={element.name}>
-    <Accordion.Control><Link to={`/details/${element.id}/${element.price}`}> Details </Link><Image maw={150} mx="auto" radius="md" src={element.image} alt={element.name} /><Text fz="xl">{element.name}</Text></Accordion.Control>
+    <Accordion.Control><Link to={`/details/${element.id}/${element.price}/${element.status}`}> Details </Link><Image maw={150} mx="auto" radius="md" src={element.image} alt={element.name} /><Text fz="xl">{element.name}</Text></Accordion.Control>
     <Accordion.Panel>Artist: {element.artist} <br></br> Quantity: {element.quantity} <br></br>Price: {element.price} EUR <br></br>
     <Button leftIcon={<IconSquareX size="1rem" />} onClick={() => removeItem(element.id)}>Remove item</Button></Accordion.Panel>
   </Accordion.Item>

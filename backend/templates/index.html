@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="column is-12">
+  <header class="masthead text-center text-white">
+  </header>
+<main>
+<!-- Content section 1-->
+<section class="section">
+    <h1 class="title">Quick Start</h1>
+    <h2 class="subtitle">
+      Select an <strong>option</strong>
+    </h2>
+    <div class="box">
+      {% if not current_user.is_authenticated %}
+      <a class="button is-primary" href="">
+        <strong>Sign up</strong>
+      </a>
+      <a class="button is-primary" href="">
+        Log in
+      </a>
+      {% endif %}
+      <button class="button is-primary" onclick="activate('test-modal')">Info</button>
+      {% if current_user.is_authenticated %}
+      <button class="button is-primary" data-show="quickview" data-target="quickviewDefault" onclick="quickview('quickviewDefault')">More Information to My Profile</button>
+      <a class="button is-primary" href="">
+        <strong>My Inventory<strong>
+      </a>
+      {% endif %}
+    </div>
+  </section>
+  {% if current_user.is_authenticated %}
+  <div class="row">
+    <div class="column">
+        <div id="to-collapse" class="is-collapsible" aria-expanded="true">
+          <section class="accordions">
+            <article id="card-accordion" class="accordion is-active">
+              <div class="accordion-header">
+                <p>My Profile</p>
+                <button class="toggle" aria-label="toggle" onclick="accordion('card-accordion')"></button>
+              </div>
+              <div class="accordion-body">
+                <div class="accordion-content">
+                  <div class="card">
+                    <header class="card-header">
+                      <p class="card-header-title">
+                        Hello {{username}}
+                      </p>
+                    </header>
+                    <div class="card-image">
+                      <figure class="image is-4by3">
+                        <img src="https://bulma.io/images/placeholders/1280x960.png" alt="Placeholder image">
+                      </figure>
+                    </div>
+                    <div class="card-content">
+                      <div class="media">
+                        <div class="media-left">
+                          <figure class="image is-48x48">
+                            <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+                          </figure>
+                        </div>
+                        <div class="media-content">
+                          <p class="title is-4"></p>
+                          <p class="subtitle is-6"></p>
+                        </div>
+                      </div>
+                      <div class="content">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        Phasellus nec iaculis mauris. <a></a>.
+                        <a href="#">#flask</a> <a href="#">#isawesome</a>
+                        <br>
+                        <time datetime="2022-8-1">11:09 PM - 1 Aug 2022</time>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</main>
+</div>
+      
+<!-- Modal-->
+      <div id="test-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Get Started</p>
+            <button class="delete" onclick="deactivate('test-modal')" aria-label="close"></button>
+          </header>
+          <section class="modal-card-body">
+            <section class="accordions">
+              <article id="test-accordion" class="accordion is-active">
+                <div class="accordion-header">
+                  <p>How it started</p>
+                  <button class="toggle" aria-label="toggle" onclick="accordion('test-accordion')"></button>
+                </div>
+                <div class="accordion-body">
+                  <div class="accordion-content">
+                    This page has been developed for creating your own inventory of things you want to keep track of. Things you own like: Legos, Vinyls, Cars, etc. To use it you need to create an <strong>account</strong>, once granted access you can log in and start inventorising stuff! Any request or feedback please to <strong>lofflerg@hotmail.com</strong>.
+                  </div>
+                </div>
+              </article>
+            </section>
+          </section>
+          <footer class="modal-card-foot">
+          </footer>
+        </div>
+      </div>
+<!-- Modal-->
+{% endblock %}
+
+

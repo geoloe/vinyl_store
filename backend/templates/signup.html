@@ -1,0 +1,146 @@
+{% extends 'base-login.html' %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-danger">
+        {{ messages[0] }}.
+    </div>
+{% endif %}
+{% endwith %}
+<form class="box" method="POST" action="/signup">  
+  <div class="steps" id="stepsDemo">
+    <div id="step1" class="step-item is-success is-active">
+      <div class="step-marker">1</div>
+      <div class="step-details">
+        <p class="step-title">Account</p>
+      </div>
+    </div>
+    <div id="step2" class="step-item">
+      <div class="step-marker">2</div>
+      <div class="step-details">
+        <p class="step-title">Profile</p>
+      </div>
+    </div>
+    <div id="step3" class="step-item">
+      <div class="step-marker">3</div>
+      <div class="step-details">
+        <p class="step-title">Social</p>
+      </div>
+    </div>
+    <div id="step4" class="step-item">
+      <div class="step-marker">4</div>
+      <div class="step-details">
+        <p class="step-title">Finish</p>
+      </div>
+    </div>
+    <div class="steps-content">
+      <div id="content1" class="step-content has-text-centered is-active">
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Email</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <input class="input" name="email" id="Email" type="email" placeholder="Email" autofocus data-validate="require" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Password</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control has-icon has-icon-right">
+                <input class="input" type="password" name="password" id="password" placeholder="Password" data-validate="require" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Confirm password</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control has-icon has-icon-right">
+                <input class="input" type="password" name="confirm_password" id="confirm_password" placeholder="Confirm password" data-validate="require" required>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="content2" class="step-content has-text-centered">
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Firstname</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <input class="input" name="surname" id="firstname" type="text" placeholder="Firstname" autofocus data-validate="require" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Last name</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control has-icon has-icon-right">
+                <input class="input" type="text" name="name" id="lastname" placeholder="Last name" data-validate="require" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Username</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control has-icon has-icon-right">
+                <input class="input" type="text" name="user" placeholder="geoloe" data-validate="require" required>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="content3" class="step-content has-text-centered">
+        <br>
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Shodan API Key</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <div class="control">
+                <input class="input" name="api_key" id="api_key" type="text" placeholder="A1k9JG4bn86fT12nhgGl" autofocus data-validate="require">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <br>
+      <div id="content4" class="step-content has-text-centered">
+        <h1 class="title is-4">Click on the Submit button to confirm your registration.</h1>
+        <br>
+        <button class="button is-bg-success" type="submit">Submit</button> 
+      </div>
+    </div>
+    <div class="steps-actions">
+      <div class="steps-action">
+        <a href="#" data-nav="previous" onclick="previous()" class="button is-light">Previous</a>
+      </div>
+      <div class="steps-action">
+        <a href="#" data-nav="next" onclick="next()" class="button is-light">Next</a>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

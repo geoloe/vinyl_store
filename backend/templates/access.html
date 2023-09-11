@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-info">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+
+<div class="card-content">
+    <form method="POST" action="/access/grant_access">
+    <div class="content">
+      <table class="table is-hoverable" id="access-table">
+        <thead>
+          <tr>
+            <th><abbr title="index">#</abbr></th>
+            <th><abbr title="Email">Email</abbr></th>
+            <th><abbr title="Access">Grant Access</abbr></th>
+          </tr>
+        </thead>
+        <tfoot>
+          <tr>
+            <th><abbr title="index">#</abbr></th>
+            <th><abbr title="Email">Email</abbr></th>
+            <th><abbr title="Access">Grant Access</abbr></th>
+          </tr>
+        </tfoot>
+        <tbody>
+          <tr>
+            <th><abbr title="index"></abbr></th>
+            {% for user in unactive_users%}
+            <td><abbr title="Email" name="{{user[0]}}" >{{user[0]}}</abbr></td>
+            <td><abbr title="Access">
+                <div class="field">
+                    <input class="is-checkradio" id="{{user[1]}}" type="checkbox" name="{{user[0]}}" checked="checked">
+                    <label for="Grant">Grant Access</label>
+                  </div>
+            </abbr></td>
+            {% endfor %}
+          </tr>
+        
+        </tbody>
+      </table>
+    </div>
+    <div>
+        <button class="button is-success" type="submit">Save changes</button>
+    </div>
+    </form>
+  </div>
+
+{% endblock %}

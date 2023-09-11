@@ -379,7 +379,7 @@ const Details = () => {
         s.quantity = 1;
         s.image = releases.data.images[0]?.resource_url;
         s.artist = releases.data.artists[0]?.name;
-
+        s.status = status;
       }
 
     handleItemsToBuy();

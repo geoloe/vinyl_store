@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 backend/nodejs/node_modules/*
-backend/*
+backend/.env
 
 # Editor directories and files
 .vscode/*

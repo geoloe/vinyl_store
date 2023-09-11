@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="column is-11">
+  <header class="masthead text-center text-white">
+  </header>
+<main>
+<!-- Content section 1-->
+<section class="section">
+    <h1 class="title">Quick Start</h1>
+    <h2 class="subtitle">
+      Select the <strong>option</strong>, you would like to see.
+    </h2>
+    <div class="box">
+      <button class="button" onclick="activate('test-modal')">Info</button>
+    </div>
+  </section>
+  <div class="graphs-container" data-title="Horizontal Graph">
+    <div class="data-container column is-full columns is-mobile is-size-7 has-text-white is-marginless">
+        <div data-title="One" data-value="10"></div>
+        <div data-title="Two" data-value="50"></div>
+        <div data-title="Three" data-value="100"></div>
+    </div>
+  </div>
+</main>
+</div>
+      
+<!-- Modal-->
+      <div id="test-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+          <header class="modal-card-head">
+            <p class="modal-card-title">Modal title</p>
+            <button class="delete" onclick="deactivate('test-modal')" aria-label="close"></button>
+          </header>
+          <section class="modal-card-body">
+            <!-- Content ... -->
+          </section>
+          <footer class="modal-card-foot">
+            <button class="button is-success">Save changes</button>
+            <button class="button">Cancel</button>
+          </footer>
+        </div>
+      </div>
+<!-- Modal-->
+{% endblock %}
+
+

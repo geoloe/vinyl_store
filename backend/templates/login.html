@@ -1,0 +1,50 @@
+{% extends 'base-login.html' %}
+
+{% block content %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div class="notification is-info">
+        {{ messages[0] }}
+    </div>
+{% endif %}
+{% endwith %}
+<form class="box" method="POST" action="/login">
+  <div class="field" id="email_input">
+    <label class="label">Email</label>
+    <div class="control has-icons-left has-icons-right">
+      <input class="input is-success" type="email" name='email' placeholder="lofflerg@hotmail.com" required>
+      <span class="icon is-small is-left">
+        <i class="fas fa-envelope"></i>
+      </span>
+    </div>
+  </div>
+  
+  <div class="field">
+    <label class="label">Password</label>
+    <div class="control has-icons-left has-icons-right">
+      <input class="input is-danger" type="password" name="password" placeholder="*********" required>
+      <span class="icon is-small is-left">
+        <i class="fa-solid fa-lock"></i>
+      </span>
+    </div>
+  </div>
+  
+  <div class="field">
+    <div class="control">
+      <label class="checkbox">
+        <input type="checkbox">
+        Remember me
+      </label>
+    </div>
+  </div>
+
+  <div class="field is-grouped">
+    <div class="control">
+      <button class="button is-link">Login</button>
+    </div>
+    <div class="control">
+      <button class="button is-link is-light" disabled>Forgot Password</button>
+    </div>
+  </div>
+</form>
+{% endblock %}

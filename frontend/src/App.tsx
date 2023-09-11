@@ -55,6 +55,7 @@ export type ShoppingItem = {
   quantity?: number;
   image: string;
   artist?: string;
+  status: string;
 }
 
 export type Listing = {
@@ -701,7 +702,7 @@ const App = () => {
         </div>
         <Center>
         <div id="front2" style={{ width: 350 }}>
-        {vinyls.isLoading && <div><Center><Text c="dimmed">Fetching whole catalogue... Please wait...</Text></Center><Center><Loader variant="dots" />;</Center></div>}
+        {vinyls.isLoading && <div><Center><Text c="dimmed">Fetching whole catalogue... Please wait...</Text></Center><Center><Loader variant="dots" /></Center></div>}
               <ReactSearchAutocomplete
                 autoFocus
                 items={Search}
@@ -952,6 +953,9 @@ for(let i:number = 0; i < sortedList.length; i++){
   if(sortedList[i].release.year >= range[0] && sortedList[i].release.year <= range[1]){
     sortedListWithYear.push(sortedList[i]);
   }
+  else if (sortedList[i].release.year === 0){
+    sortedListWithYear.push(sortedList[i]);  
+  }
 }
 
 
@@ -974,7 +978,7 @@ return (
               >
               <Grid>
               <Grid.Col span="content">
-                <Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {list.length} Items</Text>
+                <Text fz="xs" c="dimmed" ta="left">Page {page.page}-{page.pages} Showing: {sortedListWithYear.length} Items</Text>
               </Grid.Col>
               <Grid.Col span={9}>
                 <Center>
@@ -1299,7 +1303,8 @@ const CarouselCard: React.FC<CarouselProps> = ({ item, index, onRemoveItem, new_
     price: item.price.value,
     quantity: 1,
     image: images[0],
-    artist: item.release.artist
+    artist: item.release.artist,
+    status: item.status
   }
   const slides = images.map((image) => (
     <Carousel.Slide key={image}>
