@@ -13,6 +13,7 @@ dist-ssr
 *.local
 backend/nodejs/node_modules/*
 backend/.env
+backend/__pycache__
 
 # Editor directories and files
 .vscode/*

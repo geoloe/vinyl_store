@@ -50,7 +50,7 @@ class Item(db.Model):
     time_created = Column(DateTime(timezone=True), server_default=func.now())
 
     wantlist_id = Column(Integer, ForeignKey("wantlist.wantlist_id"), nullable=False)
-    order_id = Column(String(32), ForeignKey("orders.order_id"), nullable=True)
+   # order_id = Column(String(32), ForeignKey("orders.order_id"), nullable=True)
 
 
     def __repr__(self):
@@ -72,27 +72,27 @@ class Wantlist(db.Model):
 
 #Order Table
 
-class Status(enum.Enum):
-    dispatched = "dispatched"
-    canceled = "canceled"
-    accepted = "accepted"
+#class Status(enum.Enum):
+#    dispatched = "dispatched"
+#    canceled = "canceled"
+#    accepted = "accepted"
 
-class Order(db.Model):
+#class Order(db.Model):
 
-    __tablename__ = 'orders'
+#    __tablename__ = 'orders'
 
-    order_id = Column(String(32), primary_key=True, unique=True, default=get_uuid)
+#    order_id = Column(String(32), primary_key=True, unique=True, default=get_uuid)
 
-    def get_id(self):
-        return (self.order_id)
+#    def get_id(self):
+#        return (self.order_id)
 
-    email = Column(String(256), nullable=False)
-    shipping_adress = Column(String(256), nullable=False)
-    is_user = Column(Boolean, nullable=False)
-    user_id = Column(String(32), ForeignKey('users.user_id'), nullable=True)
-    status = Column(Enum(Status))  
-    time_created = Column(DateTime(timezone=True), server_default=func.now())
+#    email = Column(String(256), nullable=False)
+#    shipping_adress = Column(String(256), nullable=False)
+#   is_user = Column(Boolean, nullable=False)
+#    user_id = Column(String(32), ForeignKey('users.user_id'), nullable=True)
+#    status = Column(Enum(Status))  
+#    time_created = Column(DateTime(timezone=True), server_default=func.now())
 
 
-    def __repr__(self):
-        return f"<Order: {self.name}>"
+#   def __repr__(self):
+#        return f"<Order: {self.name}>"

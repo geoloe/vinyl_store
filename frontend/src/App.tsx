@@ -455,6 +455,8 @@ const App = () => {
 
     //Delete duplicates
   const uniqueResults = [...new Map(searchResults.map(v => [v.id, v])).values()]
+
+  console.log(uniqueResults)
 ////Get the whole catalog
 
 
